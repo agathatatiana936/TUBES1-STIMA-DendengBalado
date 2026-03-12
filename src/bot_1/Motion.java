@@ -165,7 +165,11 @@ public class Motion {
             new MapLocation(0, 0),
             new MapLocation(mapW - 1, 0),
             new MapLocation(0, mapH - 1),
-            new MapLocation(mapW - 1, mapH - 1)
+            new MapLocation(mapW - 1, mapH - 1),
+            new MapLocation(mapW / 2, 0),
+            new MapLocation(mapW / 2, mapH - 1),
+            new MapLocation(0, mapH / 2),
+            new MapLocation(mapW - 1, mapH / 2)
         };
 
         MapLocation myLoc = rc.getLocation();
