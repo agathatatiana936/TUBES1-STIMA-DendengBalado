@@ -82,10 +82,17 @@ public class Motion {
                 score -= nextLoc.distanceSquaredTo(enemy.getLocation());
             }
 
-            if (info.getPaint() == PaintType.EMPTY) {
-                score += 8;
+            for (MapInfo tile : rc.senseNearbyMapInfos(nextLoc, 4)) {
+                if (tile.isWall()){
+                    score -= 50;
+                }
             }
-            if (info.getPaint() == PaintType.ENEMY_PRIMARY || info.getPaint() == PaintType.ENEMY_SECONDARY) {
+
+            if (info.getPaint() == PaintType.ALLY_PRIMARY || info.getPaint() == PaintType.ALLY_SECONDARY) {
+                score -= 20;
+            }
+
+            if (info.getPaint() == PaintType.ENEMY_PRIMARY || info.getPaint() == PaintType.EMPTY || info.getPaint() == PaintType.ENEMY_SECONDARY) {
                 score += 20;
             }
 
@@ -134,6 +141,20 @@ public class Motion {
         }
         if (nearest != null) return moveTowardLocation(rc, nearest);
         return moveTowardCenter(rc);
+    }
+
+    public static Direction moveTowardNearestEnemyTower(RobotController rc) throws GameActionException {
+        RobotInfo[] enemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+        MapLocation nearest = null;
+        int closestDist = Integer.MAX_VALUE;
+        for (RobotInfo e : enemies) {
+            if (isTowerType(e.getType())) {
+                int dist = rc.getLocation().distanceSquaredTo(e.getLocation());
+                if (dist < closestDist) { closestDist = dist; nearest = e.getLocation(); }
+            }
+        }
+        if (nearest != null) return moveTowardLocation(rc, nearest);
+        return moveTowardCorner(rc);
     }
 
     public static Direction moveTowardNearestAllySoldier(RobotController rc) throws GameActionException {
@@ -200,5 +221,11 @@ public class Motion {
 
         lastCornerTarget = targetCorner;
         return moveTowardLocation(rc, targetCorner);
+    }
+
+    public static boolean isTowerType(UnitType type) {
+        return type == UnitType.LEVEL_ONE_DEFENSE_TOWER || type == UnitType.LEVEL_ONE_MONEY_TOWER || type == UnitType.LEVEL_ONE_PAINT_TOWER
+            || type == UnitType.LEVEL_TWO_DEFENSE_TOWER || type == UnitType.LEVEL_TWO_MONEY_TOWER || type == UnitType.LEVEL_TWO_PAINT_TOWER
+            || type == UnitType.LEVEL_THREE_DEFENSE_TOWER || type == UnitType.LEVEL_THREE_MONEY_TOWER || type == UnitType.LEVEL_THREE_PAINT_TOWER;
     }
 }
