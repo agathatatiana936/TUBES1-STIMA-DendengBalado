@@ -13,7 +13,7 @@ public class Soldier {
         if (visible != null) knownEnemyTower = visible.getLocation();
 
         int round = rc.getRoundNum();
-        if (round <= 400) {
+        if (round <= 200) {
             runEarly(rc);
         } else if (round <= 1000) {
             runMid(rc);
@@ -40,11 +40,8 @@ public class Soldier {
             if (dir != null && rc.canMove(dir)) { rc.move(dir); lastDir = dir; }
             tryAttackEnemyTower(rc);
         } else {
-            Direction dir = Motion.moveTowardNearestEnemy(rc);
-            if (dir != null && rc.canMove(dir)) { rc.move(dir); lastDir = dir; }
-            for (RobotInfo enemy : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
-                if (rc.canAttack(enemy.getLocation())) { rc.attack(enemy.getLocation()); break; }
-            }
+            runEarly(rc);
+            return;
         }
         paintCurrentTileIfNeeded(rc);
     }
@@ -107,14 +104,14 @@ public class Soldier {
         return false;
     }
 
-    private static void paintCurrentTileIfNeeded(RobotController rc) throws GameActionException {
+    public static void paintCurrentTileIfNeeded(RobotController rc) throws GameActionException {
         MapInfo currentTile = rc.senseMapInfo(rc.getLocation());
         if (!currentTile.getPaint().isAlly() && rc.canAttack(rc.getLocation())) {
             rc.attack(rc.getLocation());
         }
     }
 
-    private static MapLocation getSymmetryTarget(RobotController rc) {
+    public static MapLocation getSymmetryTarget(RobotController rc) {
         if (spawnTower == null) {
             return null;
         }
