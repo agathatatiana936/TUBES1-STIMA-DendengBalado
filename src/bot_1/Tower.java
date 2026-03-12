@@ -10,16 +10,16 @@ public class Tower {
             tryAttackEnemies(rc);
             trySpawn(rc, UnitType.MOPPER, false);
         }
-        if (round <= 400) {
+        if (round <= 300) {
             trySpawn(rc, UnitType.SOLDIER, true);
-        } else if (round <= 800) {
-            int mod = buildCount % 4;
-            UnitType nextType = (mod < 2) ? UnitType.SPLASHER : (mod == 2) ? UnitType.MOPPER : UnitType.SOLDIER;
+        } else if (round <= 1000) {  
+            int mod = buildCount % 2;
+            UnitType nextType = (mod == 0) ? UnitType.SPLASHER : UnitType.SOLDIER;
             boolean allowFallbackSoldier = nextType != UnitType.SPLASHER;
             trySpawn(rc, nextType, allowFallbackSoldier);
-        } else if (round <= 2000) {
-            int mod = buildCount % 3;
-            UnitType nextType = (mod == 0) ? UnitType.SPLASHER : (mod == 1) ? UnitType.SOLDIER : UnitType.MOPPER;
+        } else{
+            int mod = buildCount % 2;
+            UnitType nextType = (mod == 0) ? UnitType.SPLASHER : UnitType.MOPPER;
             boolean allowFallbackSoldier = nextType != UnitType.SPLASHER;
             trySpawn(rc, nextType, allowFallbackSoldier);
         }
@@ -85,6 +85,7 @@ public class Tower {
         for (RobotInfo enemy : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
             if (rc.canAttack(enemy.getLocation())) {
                 rc.attack(enemy.getLocation());
+                rc.attack(null);
                 return;
             }
         }
