@@ -22,6 +22,7 @@ public class Splasher {
         }
         if (dir != null && rc.canMove(dir)) rc.move(dir);
         if (rc.canAttack(rc.getLocation())) rc.attack(rc.getLocation());
+        Soldier.paintCurrentTileIfNeeded(rc);
     }
 
     private static void runMid(RobotController rc) throws GameActionException {

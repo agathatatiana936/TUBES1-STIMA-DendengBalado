@@ -4,75 +4,83 @@ import battlecode.common.*;
 
 public class Motion {
     static MapLocation lastCornerTarget = null;
-    static MapLocation lastLoc = null;
-    static int stuckTurns = 0;
-    static MapLocation wallTarget = null;
-    static int wallFollowSign = 1;
-    static int wallFollowSteps = 0;
-    static int wallStartDist = Integer.MAX_VALUE;
+    static MapLocation[] queueLastLocations = new MapLocation[100];
+
+    static MapLocation bugTarget = null;
+    static boolean bugTracing = false;
+    static int bugSide = 1;      
+    static Direction bugTraceDir = Direction.NORTH;
+    static int bugStartDist = Integer.MAX_VALUE; 
+    static int bugTraceSteps = 0;
 
     public static Direction moveTowardLocation(RobotController rc, MapLocation target) throws GameActionException {
-        if (target == null) {
-            return null;
-        }
+        if (target == null) return null;
 
         MapLocation myLoc = rc.getLocation();
-        if (lastLoc != null && lastLoc.equals(myLoc)) {
-            stuckTurns++;
-        } else {
-            stuckTurns = 0;
-        }
-        lastLoc = myLoc;
+        if (myLoc.equals(target)) return null;
 
-        Direction greedy = getBestDirection(rc, target);
+        // Reset state jika target berubah
+        if (bugTarget == null || !bugTarget.equals(target)) {
+            bugTarget = target;
+            bugTracing = false;
+            bugSide = (rc.getID() % 2 == 0) ? 1 : -1;
+            bugTraceDir = Direction.NORTH;
+            bugStartDist = Integer.MAX_VALUE;
+            bugTraceSteps = 0;
+        }
+
+        Direction direct = myLoc.directionTo(target);
         int curDist = myLoc.distanceSquaredTo(target);
 
-        boolean forceWallFollow = stuckTurns >= 2;
-        if (!forceWallFollow && greedy != null && rc.canMove(greedy)) {
-            wallTarget = null;
-            wallFollowSteps = 0;
-            return greedy;
+        if (bugTracing && direct != Direction.CENTER && rc.canMove(direct) && curDist < bugStartDist) {
+            bugTracing = false;
+            bugTraceSteps = 0;
         }
 
-        if (wallTarget == null || !wallTarget.equals(target)) {
-            wallTarget = target;
-            wallFollowSign = (rc.getID() % 2 == 0) ? 1 : -1;
-            wallFollowSteps = 0;
-            wallStartDist = curDist;
-        }
-
-        Direction follow = followWallDirection(rc, target, wallFollowSign);
-        if (follow == null) {
-            wallFollowSign *= -1;
-            follow = followWallDirection(rc, target, wallFollowSign);
-        }
-
-        if (follow != null) {
-            wallFollowSteps++;
-            MapLocation next = myLoc.add(follow);
-            int nextDist = next.distanceSquaredTo(target);
-            if (nextDist < wallStartDist - 2 || wallFollowSteps > 10) {
-                wallTarget = null;
-                wallFollowSteps = 0;
+        if (!bugTracing) {
+            if (direct != Direction.CENTER && rc.canMove(direct)) {
+                return direct;
             }
-            return follow;
+
+            Direction best = getBestDirection(rc, target);
+            if (best != null) return best;
+
+            bugTracing = true;
+            bugStartDist = curDist;  
+            bugTraceDir = (direct == Direction.CENTER) ? Direction.NORTH : direct;
+            bugTraceSteps = 0;
         }
 
+        if (bugTraceSteps > 50) {
+            bugSide *= -1;
+            bugTraceDir = (direct == Direction.CENTER) ? Direction.NORTH : direct;
+            bugStartDist = curDist;
+            bugTraceSteps = 0;
+        }
+
+        Direction follow = traceWall(rc);
+        if (follow != null) return follow;
+
+        if (direct != Direction.CENTER && rc.canMove(direct)) return direct;
         return null;
     }
 
     private static Direction getBestDirection(RobotController rc, MapLocation target) throws GameActionException {
         Direction bestDir = null;
         int bestScore = Integer.MIN_VALUE;
+        outer:
         for (Direction d : Direction.allDirections()) {
-            if (!rc.canMove(d)) {
-                continue;
-            }
+            if (d == Direction.CENTER) continue;
+            if (!rc.canMove(d)) continue;
 
             MapLocation nextLoc = rc.getLocation().add(d);
-            MapInfo info = rc.senseMapInfo(nextLoc);
+            for (MapLocation loc : queueLastLocations) {
+                if (loc != null && nextLoc.equals(loc)) continue outer;
+            }
+
             int score = 0;
-            score -= nextLoc.distanceSquaredTo(target) * 10;
+
+            score -= nextLoc.distanceSquaredTo(target) * 2;
 
             for (RobotInfo ally : rc.senseNearbyRobots(-1, rc.getTeam())) {
                 score += nextLoc.distanceSquaredTo(ally.getLocation());
@@ -83,37 +91,42 @@ public class Motion {
             }
 
             for (MapInfo tile : rc.senseNearbyMapInfos(nextLoc, 4)) {
-                if (tile.isWall()){
-                    score -= 50;
-                }
+                if (tile.isWall()) score -= 50;
             }
 
-            if (info.getPaint() == PaintType.ALLY_PRIMARY || info.getPaint() == PaintType.ALLY_SECONDARY) {
-                score -= 20;
-            }
+            // Preferensikan cat musuh / kosong (untuk direbut), hindari cat sendiri
+            MapInfo info = rc.senseMapInfo(nextLoc);
+            if (info.getPaint() == PaintType.ALLY_PRIMARY || info.getPaint() == PaintType.ALLY_SECONDARY) score -= 20;
+            if (info.getPaint() == PaintType.ENEMY_PRIMARY || info.getPaint() == PaintType.ENEMY_SECONDARY
+                    || info.getPaint() == PaintType.EMPTY) score += 20;
 
-            if (info.getPaint() == PaintType.ENEMY_PRIMARY || info.getPaint() == PaintType.EMPTY || info.getPaint() == PaintType.ENEMY_SECONDARY) {
-                score += 20;
-            }
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestDir = d;
-            }
+            if (score > bestScore) { bestScore = score; bestDir = d; }
         }
         return bestDir;
     }
 
-    private static Direction followWallDirection(RobotController rc, MapLocation target, int sign) {
-        Direction dir = rc.getLocation().directionTo(target);
-        if (dir == null) {
-            return null;
-        }
-        for (int i = 0; i < 8; i++) {
-            if (rc.canMove(dir)) {
-                return dir;
+    private static Direction traceWall(RobotController rc) {
+        Direction dir = bugTraceDir;
+        if (bugSide > 0) {
+            dir = dir.rotateRight();
+            for (int i = 0; i < 8; i++) {
+                if (rc.canMove(dir)) {
+                    bugTraceDir = dir;
+                    bugTraceSteps++;
+                    return dir;
+                }
+                dir = dir.rotateLeft();
             }
-            dir = (sign > 0) ? dir.rotateRight() : dir.rotateLeft();
+        } else {
+            dir = dir.rotateLeft();
+            for (int i = 0; i < 8; i++) {
+                if (rc.canMove(dir)) {
+                    bugTraceDir = dir;
+                    bugTraceSteps++;
+                    return dir;
+                }
+                dir = dir.rotateRight();
+            }
         }
         return null;
     }
