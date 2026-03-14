@@ -4,15 +4,22 @@ import battlecode.common.*;
 
 public class Tower {
     static int buildCount = 0;
+
     public static void runTower(RobotController rc) throws GameActionException{
+        Comms.startTurn(rc);
         int round = rc.getRoundNum();
-        if(rc.senseNearbyRobots( -1, rc.getTeam().opponent()).length > 0) {
+        if(rc.senseNearbyRobots(-1, rc.getTeam().opponent()).length > 0) {
             tryAttackEnemies(rc);
             trySpawn(rc, UnitType.MOPPER, false);
         }
         if (round <= 300) {
+            if (buildCount % 3 == 1) {
+                trySpawn(rc, UnitType.SOLDIER, true);
+            } else {
+                trySpawn(rc, UnitType.SOLDIER, false);
+            }
             trySpawn(rc, UnitType.SOLDIER, true);
-        } else if (round <= 1000) {  
+        } else if (round <= 1000) {
             int mod = buildCount % 2;
             UnitType nextType = (mod == 0) ? UnitType.SPLASHER : UnitType.SOLDIER;
             boolean allowFallbackSoldier = nextType != UnitType.SPLASHER;
@@ -52,6 +59,9 @@ public class Tower {
 
             for (RobotInfo enemy : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
                 score -= nextLoc.distanceSquaredTo(enemy.getLocation());
+                if (Motion.isTowerType(enemy.getType())) {
+                    Comms.reportEnemyTower(rc, enemy.getLocation());
+                }
             }
 
             if (score > bestScore) {
@@ -71,6 +81,7 @@ public class Tower {
         }
         if (nextLoc != null && rc.canBuildRobot(unitType, nextLoc)) {
             rc.buildRobot(unitType, nextLoc);
+            Comms.informNewSpawn(rc, nextLoc);
             System.out.println("BUILT A " + unitType);
             buildCount++;
             return true;
@@ -85,6 +96,9 @@ public class Tower {
         for (RobotInfo enemy : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
             if (rc.canAttack(enemy.getLocation())) {
                 rc.attack(enemy.getLocation());
+                if (Motion.isTowerType(enemy.getType())) {
+                    Comms.reportEnemyTower(rc, enemy.getLocation());
+                }
                 rc.attack(null);
                 return;
             }

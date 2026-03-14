@@ -8,9 +8,16 @@ public class Soldier {
     static MapLocation knownEnemyTower = null;
 
     public static void runSoldier(RobotController rc) throws GameActionException {
+        Comms.startTurn(rc);
         captureSpawnTower(rc);
+
+        if (Comms.enemyTowerLoc != null) knownEnemyTower = Comms.enemyTowerLoc;
+
         RobotInfo visible = findVisibleEnemyTower(rc);
-        if (visible != null) knownEnemyTower = visible.getLocation();
+        if (visible != null) {
+            knownEnemyTower = visible.getLocation();
+            Comms.reportEnemyTower(rc, knownEnemyTower);
+        }
 
         int round = rc.getRoundNum();
         if (round <= 200) {
@@ -53,7 +60,13 @@ public class Soldier {
         Direction dir = Motion.moveTowardEnemyPaint(rc);
         if (dir != null && rc.canMove(dir)) { rc.move(dir); lastDir = dir; }
         for (RobotInfo enemy : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
-            if (rc.canAttack(enemy.getLocation())) { rc.attack(enemy.getLocation()); break; }
+            if (rc.canAttack(enemy.getLocation())) {
+                rc.attack(enemy.getLocation());
+                if (isTowerType(enemy.getType())) {
+                    Comms.reportEnemyTower(rc, enemy.getLocation());
+                }
+                break;
+            }
         }
         paintCurrentTileIfNeeded(rc);
     }
@@ -97,6 +110,7 @@ public class Soldier {
 
         MapLocation towerLoc = enemyTower.getLocation();
         knownEnemyTower = towerLoc;
+        Comms.reportEnemyTower(rc, towerLoc);
         if (rc.canAttack(towerLoc)) {
             rc.attack(towerLoc);
             return true;

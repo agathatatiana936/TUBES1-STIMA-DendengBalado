@@ -4,7 +4,12 @@ import battlecode.common.*;
 
 public class Splasher {
     static MapLocation knownEnemyTower = null;
+
     public static void runSplasher(RobotController rc) throws GameActionException {
+        Comms.startTurn(rc);
+        if (Comms.enemyTowerLoc != null) {
+            knownEnemyTower = Comms.enemyTowerLoc;
+        }
         int round = rc.getRoundNum();
         if (round <= 600) {
             runEarly(rc);
@@ -16,7 +21,7 @@ public class Splasher {
     }
 
     private static void runEarly(RobotController rc) throws GameActionException {
-        Direction dir = Motion.moveTowardNearestEnemyTower(rc);
+        Direction dir = knownEnemyTower != null ? Motion.moveTowardLocation(rc, knownEnemyTower) : Motion.moveTowardNearestEnemyTower(rc);
         if (dir == null) {
             dir = Motion.moveTowardCenter(rc);
         }
@@ -26,7 +31,7 @@ public class Splasher {
     }
 
     private static void runMid(RobotController rc) throws GameActionException {
-        Direction dir = Motion.moveTowardNearestEnemyTower(rc);
+        Direction dir = knownEnemyTower != null ? Motion.moveTowardLocation(rc, knownEnemyTower) : Motion.moveTowardNearestEnemyTower(rc);
         if (dir == null) dir = Motion.moveTowardCorner(rc);
         if (dir != null && rc.canMove(dir)) { rc.move(dir); }
         if (Soldier.tryAttackEnemyTower(rc)) return;
@@ -35,13 +40,14 @@ public class Splasher {
     }
 
     private static void runLate(RobotController rc) throws GameActionException {
-        Direction dir = Motion.moveTowardNearestEnemyTower(rc);
+        Direction dir = knownEnemyTower != null ? Motion.moveTowardLocation(rc, knownEnemyTower) : Motion.moveTowardNearestEnemyTower(rc);
         if (Soldier.tryAttackEnemyTower(rc)) return;
         if (dir == null) {
             dir = Motion.moveTowardCorner(rc);
         }
-        MapInfo dirInfo = rc.senseMapInfo(rc.getLocation().add(dir));
-        if (rc.canMove(dir)) rc.move(dir);
+        if (dir != null && rc.canMove(dir)) rc.move(dir);
+        MapLocation ahead = dir != null ? rc.getLocation().add(dir) : rc.getLocation();
+        MapInfo dirInfo = rc.senseMapInfo(ahead);
         if (dirInfo.getPaint() == PaintType.ENEMY_PRIMARY
                 || dirInfo.getPaint() == PaintType.ENEMY_SECONDARY
                 || dirInfo.getPaint() == PaintType.EMPTY) {
@@ -49,4 +55,3 @@ public class Splasher {
         }
     }
 }
-

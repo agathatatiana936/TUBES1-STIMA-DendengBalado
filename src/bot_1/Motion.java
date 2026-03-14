@@ -19,7 +19,6 @@ public class Motion {
         MapLocation myLoc = rc.getLocation();
         if (myLoc.equals(target)) return null;
 
-        // Reset state jika target berubah
         if (bugTarget == null || !bugTarget.equals(target)) {
             bugTarget = target;
             bugTracing = false;
@@ -240,5 +239,12 @@ public class Motion {
         return type == UnitType.LEVEL_ONE_DEFENSE_TOWER || type == UnitType.LEVEL_ONE_MONEY_TOWER || type == UnitType.LEVEL_ONE_PAINT_TOWER
             || type == UnitType.LEVEL_TWO_DEFENSE_TOWER || type == UnitType.LEVEL_TWO_MONEY_TOWER || type == UnitType.LEVEL_TWO_PAINT_TOWER
             || type == UnitType.LEVEL_THREE_DEFENSE_TOWER || type == UnitType.LEVEL_THREE_MONEY_TOWER || type == UnitType.LEVEL_THREE_PAINT_TOWER;
+    }
+
+    public static void addtoQueue(MapLocation loc) {
+        for (int i = queueLastLocations.length - 1; i > 0; i--) {
+            queueLastLocations[i] = queueLastLocations[i - 1];
+        }
+        queueLastLocations[0] = loc;
     }
 }
