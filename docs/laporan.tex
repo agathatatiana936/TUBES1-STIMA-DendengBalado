@@ -1,0 +1,2026 @@
+\documentclass{article}
+
+% =============================
+% PACKAGE
+% =============================
+\usepackage[utf8]{inputenc}
+\usepackage[bahasa=indonesia]{babel}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{longtable}
+\usepackage{indentfirst}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{titlesec}
+ 
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+ 
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+ 
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.3}
+
+% =============================
+% MARGIN
+% =============================
+\geometry{margin=1in, headheight=30pt}
+\setlength{\headsep}{28pt}
+
+% =============================
+% PARAGRAPH
+% =============================
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{2em}
+
+% =============================
+% SPACING
+% =============================
+\onehalfspacing
+
+% =============================
+% HEADER & FOOTER
+% =============================
+\pagestyle{fancy}
+\fancyhf{}
+
+% HEADER KIRI (LOGO)
+\fancyhead[L]{
+    \includegraphics[height=1.1cm]{logo_itb.png} \hspace{1pt}
+    \includegraphics[height=1.1cm]{logo_stei.png} \hspace{1pt}
+    \includegraphics[height=1.1cm]{logo_irk.png}
+}
+
+% HEADER KANAN
+\fancyhead[R]{
+    Laporan Battlecode 2025 \newline
+    \textit{Semester 4 2025/2026}
+}
+
+% FOOTER
+\fancyfoot[C]{IF2211 Strategi Algoritma}
+\fancyfoot[R]{\thepage}
+
+% GARIS
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% =============================
+% COUNTER
+% =============================
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% =============================
+% DOCUMENT
+% =============================
+\begin{document}
+\thispagestyle{empty}
+
+% =============================
+% COVER
+% =============================
+\begin{center}
+
+\textbf{\LARGE Laporan Tugas Besar}\\[1em]
+
+{\Large IF2211 Strategi Algoritma}\\[0.7em]
+
+\Large Implementasi Strategi Greedy pada Bot Battlecode 2025\\[0.5em]
+
+\small Semester II Tahun 2025/2026\\[8em]
+
+% FOTO KELOMPOK
+\includegraphics[width=0.7\textwidth]{foto_kelompok.png}\\[8em]
+
+\begin{spacing}{1.2}
+
+\textbf{\large Kelompok DendengBalado}\\[1em]
+
+Gabriella Botimada Lubis \hspace{1em} 13524006 \\[0.3em]
+Agatha Tatianingseto \hspace{1em} 13524008 \\[0.3em]
+Junior Natra Situmorang \hspace{1em} 13524055 \\[8em]
+
+\end{spacing}
+
+\large Program Studi Teknik Informatika\\[0.5em]
+Sekolah Teknik Elektro dan Informatika\\[0.5em]
+Institut Teknologi Bandung
+
+\end{center}
+
+% =============================
+% DAFTAR ISI
+% =============================
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\renewcommand{\contentsname}{Daftar Isi}
+
+\tableofcontents
+\thispagestyle{fancy}
+
+% =============================
+% BAB 1
+% =============================
+\newpage
+\section{Deskripsi Tugas}
+
+\subsection{Latar Belakang}
+
+Battlecode  adalah  permainan  strategi  waktu  nyata  di  mana  Anda  akan  menulis  kode  untuk  pemain 
+otonom.  Pemain  Anda  harus  mengelola  pasukan  robot  secara  strategis  dan  mengendalikan  cara 
+robot-robot  Anda  bekerja  sama  untuk  mengalahkan  tim  lawan.  Sebagai  peserta,  Anda  akan  belajar 
+menggunakan  kecerdasan  buatan,  penelusuran  jalur,  algoritma  terdistribusi,  dan  komunikasi  untuk 
+membuat pemain Anda sesaing mungkin. Namun, Anda hanya memiliki sumber daya komputasi terbatas 
+per giliran, jadi Anda harus merencanakan strategi, mengoptimalkan, dan berkompromi sesuai kebutuhan. 
+Pada  Tugas  Besar  pertama   Strategi Algoritma ini, mahasiswa diminta untuk membuat sebuah bot yang 
+nantinya  akan  dipertandingkan  satu  sama lain. Tentunya mahasiswa harus menggunakan strategi greedy 
+dalam membuat bot ini. 
+
+
+\subsection{Komponen Permainan}
+
+Komponen-komponen dari permainan ini antara lain:  
+
+
+\subsubsection{Objectives}
+
+Objective  utama  adalah  mewarnai  peta.  Tim  pertama  yang  berhasil  mewarnai  lebih  dari  70\% 
+petak yang dapat diwarnai di peta akan memenangkan permainan. Tim juga bisa menang dengan 
+cara menghancurkan semua robot dan menara milik tim lawan. 
+
+
+\subsubsection{Aturan Tiebreaker}
+
+Jika setelah 2000 ronde tidak ada tim yang berhasil mewarnai lebih dari 70\% petak yang dapat 
+diwarnai, permainan akan langsung berakhir. Penentuan pemenang dilakukan dengan urutan 
+tiebreaker berikut: 
+
+\begin{itemize}
+\item Luas area yang sudah diwarnai di peta
+\item Jumlah menara sekutu yang masih hidup
+\item Total jumlah uang (chips)
+\item Jumlah total cat (paint) yang dimiliki semua robot dan menara
+\item Jumlah robot sekutu yang masih hidup
+\item Jika masih seri, tim dipilih secara acak (uniform random)
+\end{itemize}
+
+
+\subsubsection{Peta}
+
+Setiap permainan dimainkan di sebuah peta berbentuk grid persegi panjang 2 dimensi, dengan 
+ukuran antara 20 $\times$ 20 hingga 60 $\times$ 60 petak (inklusif). Titik kiri bawah peta memiliki koordinat (0,0); 
+koordinat bertambah ke arah Timur (kanan) dan Utara (atas). Lokasi di peta direpresentasikan 
+dengan objek MapLocation yang menyimpan nilai x dan y. 
+Untuk menjaga keseimbangan permainan, peta dijamin simetris melalui rotasi atau refleksi. 
+
+
+\subsubsection{Jarak Pandang dan Pergerakan}
+
+Robot dapat melihat fitur peta dan robot lain dalam jarak hingga $\sqrt{20}$ atau sekitar 4.47 
+petak. Unit tidak dapat bergerak melewati menara atau robot lain. Peta juga dapat memiliki tembok 
+(walls) yang tidak dapat dilewati maupun diwarnai. Jumlah tembok maksimal adalah 20\% dari 
+seluruh peta.  
+Selain tembok, terdapat reruntuhan (ruins) yang juga tidak dapat dilewati atau diwarnai oleh robot. 
+
+
+\subsubsection{Tower dan Ruins}
+
+Menara berfungsi sebagai zona spawn tim sekaligus sebagai unit yang dapat menyerang musuh. 
+Untuk membangun menara, tim harus mewarnai pola tertentu pada reruntuhan yang tersedia di peta. 
+Setiap permainan dimulai dengan sejumlah reruntuhan yang sudah tersedia di peta. Reruntuhan 
+tidak dapat dipindahkan atau dihancurkan. Pusat reruntuhan berjarak minimal lima petak satu sama 
+lain, dan area 5×5 di sekitarnya dijamin bebas dari tembok.  
+Setiap tim memulai permainan dengan dua menara, yaitu satu menara penghasil cat dan satu menara 
+penghasil uang. 
+
+
+\subsubsection{Pola Sumber Daya Khusus}
+
+Pola sumber daya khusus atau Special Resource Pattern (SRP) merupakan pola yang dapat 
+meningkatkan produksi sumber daya tim. Jika sebuah pola berhasil diselesaikan dan tetap utuh 
+selama 50 ronde, pola tersebut akan menjadi aktif.  
+Setiap pola aktif akan memberikan tambahan tiga sumber daya per giliran pada semua menara 
+tambang sekutu. 
+
+\subsubsection{Cat}
+
+Cat merupakan sumber daya utama dalam permainan. Cat digunakan untuk mengklaim wilayah pada 
+peta dan menentukan skor tim.  
+Setiap robot dan menara memiliki kapasitas penyimpanan cat yang berbeda-beda. Jika jumlah cat 
+yang dimiliki robot terlalu sedikit, robot akan mengalami peningkatan cooldown atau bahkan tidak 
+dapat melakukan aksi.  
+
+
+\subsubsection{Chips}
+
+Chips digunakan sebagai sumber daya untuk membangun unit dan menara. Chips dihasilkan setiap 
+ronde oleh menara penghasil uang.  
+Setiap tim memulai permainan dengan 2500 chips yang dapat digunakan oleh semua robot sekutu. 
+
+
+\subsubsection{Robot}
+
+Semua robot dapat melakukan berbagai aksi seperti bergerak, merasakan lingkungan sekitar, dan 
+berkomunikasi dengan robot lain. Permainan berjalan secara bergiliran dalam ronde, dan setiap 
+robot akan menjalankan kode yang ditulis oleh pemain.  
+Setiap robot memiliki batas penggunaan bytecode pada setiap giliran. Jika bytecode habis sebelum 
+robot selesai menjalankan programnya, maka giliran robot tersebut akan langsung berakhir.  
+
+
+\subsubsection{Jenis Robot}
+
+Terdapat tiga jenis robot utama dalam permainan: Soldier, Splasher, dan Mopper.  
+Masing-masing robot memiliki kemampuan, kapasitas cat, serta biaya produksi yang berbeda.  
+
+
+\subsubsection{Towers}
+
+Semua menara dibangun dengan prosedur yang sama, yaitu dengan mewarnai pola tertentu pada 
+area 5 $\times$ 5 di sekitar reruntuhan.  
+Langkah pembangunan menara adalah:  
+
+\begin{enumerate}
+\item Memanggil fungsi markTowerPattern()
+\item Mewarnai pola yang ditentukan
+\item Memanggil completeTowerPattern() untuk memunculkan menara
+\end{enumerate}
+
+
+\subsubsection{Serangan}
+
+Menara dapat melakukan dua jenis serangan:  
+
+\begin{itemize}
+\item Serangan satu petak yang menargetkan satu unit musuh
+\item Serangan area efek (Area of Effect)
+\end{itemize}
+
+Dalam satu giliran, menara dapat melakukan satu serangan satu petak dan satu serangan area. 
+
+
+\subsubsection{Penambangan}
+
+Setiap giliran, menara penghasil uang dan menara penghasil cat akan menambang sumber daya 
+secara pasif.  
+Cat yang dihasilkan disimpan di dalam menara dan dapat diambil oleh robot sekutu, sedangkan chips 
+dapat langsung digunakan oleh semua unit sekutu. 
+
+
+\subsubsection{Komunikasi}
+
+Robot tidak dapat berbagi variabel secara langsung sehingga koordinasi antar robot harus dilakukan 
+melalui komunikasi.  
+Komunikasi dapat dilakukan melalui dua cara:  
+
+\begin{itemize}
+\item Pesan (Messages)
+\item Penanda (Markers)
+\end{itemize}
+
+Pesan dapat berisi informasi apa pun tetapi dibatasi hingga 4 byte. Robot dapat mengirim maksimal 
+satu pesan per ronde, sedangkan menara dapat mengirim hingga dua puluh pesan per ronde.  
+
+
+\subsubsection{Penanda}
+
+Penanda merupakan informasi yang dapat ditempatkan pada peta oleh robot untuk memberikan 
+petunjuk kepada robot sekutu lainnya mengenai pola atau area tertentu.  
+Penanda hanya dapat dilihat oleh robot sekutu dan tidak memengaruhi kepemilikan wilayah pada peta. 
+
+
+\subsubsection{Action dan Cooldown}
+
+Robot dapat melakukan berbagai aksi untuk berinteraksi dengan lingkungan permainan. Beberapa 
+aksi memiliki cooldown sehingga tidak dapat dilakukan secara berulang dalam waktu singkat.  
+Aksi utama yang dapat dilakukan robot meliputi:  
+
+\begin{itemize}
+\item Menyerang atau mewarnai petak
+\item Bergerak ke petak lain
+\item Menandai petak
+\item Mentransfer cat
+\item Menarik cat dari menara
+\item Spawn robot dari menara
+\item Mengirim pesan
+\item Menghancurkan diri sendiri
+\end{itemize}
+
+% =============================
+% BAB 2
+% =============================
+\newpage
+\section{Landasan Teori}
+
+\subsection{Algoritma Greedy}
+
+Algoritma greedy adalah metode penyelesaian masalah yang bekerja secara bertahap (step by step). Pada 
+setiap langkah, algoritma ini memilih keputusan yang dianggap paling optimal pada saat itu tanpa 
+mempertimbangkan konsekuensi dari keputusan tersebut terhadap langkah-langkah berikutnya.
+
+------------GAMBAR------------
+
+Prinsip utama dari algoritma greedy adalah mengambil pilihan terbaik yang tersedia pada kondisi 
+saat ini. Pendekatan ini sering disebut sebagai prinsip “rakus” (greedy), yaitu memilih keuntungan 
+terbesar yang dapat diperoleh segera, dengan asumsi bahwa pilihan lokal terbaik tersebut pada 
+akhirnya akan menghasilkan solusi global yang optimal.
+
+Secara umum, algoritma greedy memiliki dua karakteristik utama, yaitu:
+
+\begin{enumerate}[label=\alph*.]
+\item \textbf{Memilih solusi optimal lokal pada setiap langkah}  
+
+Pada setiap tahap penyelesaian, algoritma akan memilih pilihan terbaik yang tersedia pada saat itu tanpa mempertimbangkan kemungkinan dampaknya pada langkah selanjutnya.
+
+\item \textbf{Mengharapkan tercapainya solusi optimal global}  
+
+Dengan memilih solusi terbaik pada setiap langkah, algoritma berharap bahwa rangkaian pilihan lokal tersebut akan menghasilkan solusi optimal secara keseluruhan.
+\end{enumerate}
+
+Pendekatan greedy banyak digunakan dalam berbagai permasalahan optimasi karena memiliki 
+implementasi yang sederhana serta efisiensi waktu yang baik. Namun, metode ini tidak selalu 
+menghasilkan solusi optimal untuk semua jenis permasalahan, terutama pada kasus yang tidak memenuhi 
+sifat greedy choice property dan optimal substructure.
+Algoritma greedy memiliki beberapa sifat utama yang mendukung penggunaannya dalam menyelesaikan 
+berbagai permasalahan optimasi. Dua sifat penting dari algoritma greedy adalah sebagai berikut.
+
+------------GAMBAR------------
+
+\begin{enumerate}[label=\alph*.]
+
+\item \textbf{Greedy Choice Property}
+
+Greedy Choice Property merupakan sifat yang menyatakan bahwa solusi optimal dari suatu permasalahan 
+dapat diperoleh dengan memilih keputusan terbaik secara lokal pada setiap langkah. Dengan kata lain, 
+pada setiap tahap penyelesaian masalah, algoritma memilih opsi yang memberikan keuntungan paling 
+besar pada saat itu tanpa mempertimbangkan kemungkinan keputusan di masa depan.
+
+Jika suatu permasalahan memiliki sifat ini, maka pendekatan greedy dapat digunakan karena 
+pilihan lokal terbaik pada setiap langkah akan tetap mengarah pada solusi optimal secara 
+keseluruhan.
+
+\item \textbf{Optimal Substructure}
+
+Optimal Substructure adalah sifat yang menyatakan bahwa solusi optimal dari suatu permasalahan dapat 
+dibentuk dari solusi optimal dari sub-permasalahan yang lebih kecil. Artinya, jika suatu masalah dipecah 
+menjadi beberapa bagian yang lebih kecil, maka penyelesaian terbaik untuk keseluruhan masalah dapat 
+diperoleh dengan menggabungkan solusi terbaik dari masing-masing sub-permasalahan tersebut.
+
+Sifat ini sangat penting dalam algoritma greedy karena memungkinkan proses penyelesaian dilakukan 
+secara bertahap. Dengan menyelesaikan sub-permasalahan secara optimal pada setiap langkah, solusi 
+akhir yang diperoleh juga akan menjadi solusi optimal untuk permasalahan secara keseluruhan.
+
+\end{enumerate}
+
+Dalam merancang algoritma greedy untuk menyelesaikan suatu persoalan optimasi, terdapat beberapa 
+langkah atau prosedur yang perlu dilakukan agar pendekatan greedy dapat diterapkan secara tepat. 
+Prosedur tersebut meliputi hal-hal berikut.
+
+\begin{itemize}
+
+\item \textbf{Merumuskan persoalan optimasi dengan pilihan greedy}
+
+Langkah pertama adalah merumuskan persoalan optimasi sedemikian rupa sehingga pada setiap tahap 
+penyelesaian terdapat pilihan yang dapat diambil secara greedy. Persoalan dipecah menjadi serangkaian 
+keputusan yang dilakukan secara bertahap, di mana setiap keputusan memilih opsi yang dianggap paling 
+menguntungkan pada saat itu. Setelah suatu pilihan diambil, persoalan yang tersisa akan menjadi 
+sub-persoalan yang lebih kecil untuk diselesaikan pada langkah berikutnya
+
+\item \textbf{Menunjukkan adanya optimal substructure}
+
+Langkah selanjutnya adalah menunjukkan bahwa persoalan tersebut memiliki sifat optimal substructure. 
+Artinya, solusi optimal dari persoalan utama dapat diperoleh dengan menggabungkan solusi optimal dari 
+sub-persoalan yang dihasilkan pada setiap langkah. Dengan adanya sifat ini, penyelesaian secara bertahap 
+menggunakan pendekatan greedy tetap dapat menghasilkan solusi yang optimal.
+
+\item \textbf{Membuktikan adanya solusi greedy-optimal}
+
+Langkah terakhir adalah membuktikan secara matematis bahwa selalu terdapat solusi optimal yang dapat 
+diperoleh dengan mengikuti pilihan greedy pada setiap langkah. Pembuktian ini penting untuk 
+memastikan bahwa keputusan lokal yang diambil oleh algoritma greedy tidak akan menghalangi 
+tercapainya solusi optimal secara keseluruhan.
+
+\end{itemize}
+
+\subsection{Cara Kerja Program}
+
+Program yang dikembangkan merupakan sebuah bot yang dirancang untuk bermain secara otomatis pada 
+permainan Battlecode. Bot ini bekerja dengan membaca kondisi lingkungan permainan pada setiap ronde 
+dan kemudian menentukan aksi yang paling sesuai untuk dilakukan berdasarkan informasi yang 
+diperoleh. Proses pengambilan keputusan tersebut dilakukan secara berulang selama robot masih aktif di 
+dalam permainan.
+
+Pada saat permainan dimulai, setiap robot akan menjalankan fungsi utama yang berisi sebuah perulangan 
+(loop) yang berjalan terus menerus. Di dalam setiap iterasi perulangan tersebut, robot akan melakukan 
+beberapa langkah utama, yaitu membaca kondisi lingkungan, menentukan strategi yang akan digunakan, 
+memilih aksi terbaik, dan mengeksekusi aksi tersebut. Informasi yang digunakan oleh robot dapat berupa 
+posisi robot saat ini, keberadaan unit musuh, lokasi menara musuh, serta kondisi tile di sekitar robot.
+
+Bot dalam program ini terdiri dari beberapa jenis unit, yaitu Soldier, Splasher, dan Mopper, yang 
+masing-masing memiliki peran yang berbeda. Unit Soldier bertugas melakukan eksplorasi peta, 
+menyerang menara musuh, serta membangun menara baru pada lokasi tertentu. Unit Splasher berfokus 
+pada penyebaran cat (paint) dan membantu menyerang wilayah musuh. Sementara itu, unit Mopper 
+bertugas mendukung unit lain dengan membersihkan area di sekitar musuh dan menyerang target yang 
+berada dalam jangkauan.
+
+Implementasi algoritma greedy pada bot dilakukan dengan cara menentukan prioritas aksi yang harus 
+dilakukan pada setiap ronde permainan. Pada setiap langkah, bot akan memilih aksi yang memberikan 
+keuntungan paling besar pada saat itu berdasarkan kondisi lingkungan yang terdeteksi. Sebagai contoh, 
+jika terdapat menara musuh yang berada dalam jangkauan serangan, maka bot akan langsung 
+memprioritaskan aksi menyerang menara tersebut. Jika tidak ada target yang dapat diserang, bot akan 
+memilih arah pergerakan yang paling mendekati lokasi strategis seperti posisi menara musuh atau wilayah 
+yang dikuasai musuh.
+
+Pendekatan greedy juga digunakan dalam pemilihan arah pergerakan robot. Bot akan mengevaluasi 
+beberapa kemungkinan arah pergerakan yang tersedia, kemudian memilih arah yang paling mendekatkan 
+robot pada tujuan utamanya. Dengan cara ini, bot dapat mengambil keputusan secara cepat tanpa perlu 
+melakukan perhitungan strategi jangka panjang yang kompleks.
+
+Untuk menjalankan bot, kode program perlu dikompilasi dan dijalankan menggunakan sistem permainan 
+Battlecode. Setelah program dijalankan, bot akan secara otomatis mengikuti aturan permainan dan 
+menjalankan strategi yang telah diimplementasikan. Selama permainan berlangsung, bot akan terus 
+melakukan pengambilan keputusan pada setiap ronde hingga permainan berakhir.
+
+
+% =============================
+% BAB 3
+% =============================
+\newpage
+\section{Aplikasi Strategi Greedy}
+
+\subsection{Mapping Persoalan}
+
+\subsection{Mapping Permasalahan Battlecode ke Komponen Algoritma Greedy}
+
+Permainan Battlecode 2025 mengharuskan setiap robot dan menara untuk mengambil keputusan pada setiap ronde permainan. Keputusan tersebut meliputi berbagai aksi seperti bergerak, menyerang, mewarnai wilayah, membersihkan cat musuh, maupun melakukan spawn robot baru. Karena setiap unit memiliki keterbatasan bytecode dan waktu komputasi, maka pemilihan aksi harus dilakukan secara efisien.
+Pendekatan algoritma greedy digunakan untuk memilih aksi yang dianggap paling menguntungkan berdasarkan kondisi permainan saat itu. Namun, setiap jenis unit pada Battlecode memiliki fungsi dan kemampuan yang berbeda. Oleh karena itu, proses pengambilan keputusan greedy tidak dapat disamaratakan untuk semua unit. Setiap jenis robot dan tower memiliki himpunan kandidat dan prioritas aksi yang berbeda.
+Untuk memformalkan permasalahan ini ke dalam kerangka algoritma greedy, diperlukan definisi komponen-komponen berikut: himpunan kandidat, himpunan solusi, fungsi seleksi, fungsi kelayakan, fungsi solusi, dan fungsi objektif.
+
+\subsubsection{Himpunan Kandidat}
+
+Himpunan kandidat merupakan kumpulan seluruh aksi yang dapat dilakukan oleh suatu unit pada suatu ronde permainan. Karena setiap jenis robot memiliki kemampuan yang berbeda, maka himpunan kandidat untuk setiap robot juga berbeda.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+\textbf{Jenis Robot} & \textbf{Himpunan Kandidat (Aksi yang Dapat Dilakukan)} \\
+\hline
+Soldier &
+\begin{itemize}
+\item Bergerak ke salah satu dari delapan arah
+\item Menyerang robot musuh dalam radius serangan
+\item Mewarnai petak netral
+\item Menghapus cat musuh
+\item Bergerak menuju wilayah yang belum dicat
+\item Membantu menyelesaikan pola pembangunan tower
+\item Membantu menyelesaikan pola resource
+\end{itemize}
+\\
+\hline
+Splasher &
+\begin{itemize}
+\item Bergerak ke salah satu arah
+\item Melakukan serangan area (splash attack)
+\item Mewarnai beberapa petak sekaligus melalui serangan area
+\item Bergerak menuju kelompok musuh
+\item Bergerak menuju wilayah yang banyak dikuasai musuh
+\end{itemize}
+\\
+\hline
+Mopper &
+\begin{itemize}
+\item Bergerak menuju wilayah yang dicat musuh
+\item Menghapus cat musuh
+\item Melakukan serangan mop swing
+\item Mentransfer cat ke robot sekutu
+\item Mengambil cat dari menara
+\item Bergerak menuju robot sekutu yang kekurangan cat
+\end{itemize}
+\\
+\hline
+\end{tabular}
+\caption{Himpunan kandidat untuk setiap jenis robot}
+\end{table}
+
+Selain robot, tower juga memiliki himpunan kandidat yang berbeda tergantung pada jenis tower yang dimiliki oleh tim.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+\textbf{Jenis Tower} & \textbf{Himpunan Kandidat} \\
+\hline
+Money Tower &
+\begin{itemize}
+\item Spawn robot baru
+\item Menyerang musuh dalam jangkauan
+\item Melakukan serangan area
+\item Upgrade tower
+\end{itemize}
+\\
+\hline
+Paint Tower &
+\begin{itemize}
+\item Spawn robot
+\item Menyerang robot musuh
+\item Menyediakan cat bagi robot sekutu
+\item Upgrade tower
+\end{itemize}
+\\
+\hline
+Defense Tower &
+\begin{itemize}
+\item Menyerang robot musuh
+\item Melakukan serangan area
+\item Melindungi wilayah sekitar
+\item Upgrade tower
+\end{itemize}
+\\
+\hline
+\end{tabular}
+\caption{Himpunan kandidat untuk setiap jenis tower}
+\end{table}
+
+\subsubsection{Himpunan Solusi}
+
+Himpunan solusi merupakan kumpulan aksi yang dipilih oleh bot untuk dilakukan oleh seluruh unit pada suatu ronde permainan. Setiap robot dan tower akan memilih satu aksi dari himpunan kandidat yang tersedia berdasarkan prioritas strategi yang digunakan.
+Contoh himpunan solusi pada suatu ronde dapat berupa:
+
+\begin{itemize}
+\item Soldier bergerak menuju wilayah netral
+\item Soldier lainnya menyerang robot musuh
+\item Splasher melakukan serangan area
+\item Mopper membersihkan cat musuh
+\item Tower melakukan spawn robot baru
+\end{itemize}
+
+Gabungan dari seluruh aksi tersebut membentuk keputusan strategi bot pada ronde tersebut.
+
+\subsubsection{Fungsi Seleksi}
+
+Fungsi seleksi digunakan untuk menentukan aksi mana yang memiliki prioritas tertinggi dari himpunan kandidat. Prioritas aksi berbeda untuk setiap jenis robot karena setiap robot memiliki peran yang berbeda dalam permainan.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+\textbf{Jenis Robot} & \textbf{Prioritas Aksi (Greedy Selection)} \\
+\hline
+Soldier &
+\begin{enumerate}
+\item Menyerang musuh dalam jangkauan
+\item Mewarnai petak netral
+\item Menghapus cat musuh
+\item Bergerak menuju wilayah yang belum dicat
+\item Membantu menyelesaikan pola tower
+\end{enumerate}
+\\
+\hline
+Splasher &
+\begin{enumerate}
+\item Menyerang area dengan banyak musuh
+\item Menyerang wilayah dengan banyak cat musuh
+\item Bergerak menuju area konflik
+\item Bergerak menuju wilayah musuh
+\end{enumerate}
+\\
+\hline
+Mopper &
+\begin{enumerate}
+\item Menghapus cat musuh
+\item Mentransfer cat ke robot sekutu
+\item Mengambil cat dari tower
+\item Bergerak menuju wilayah dengan banyak cat musuh
+\end{enumerate}
+\\
+\hline
+\end{tabular}
+\caption{Fungsi seleksi untuk setiap jenis robot}
+\end{table}
+
+\subsubsection{Fungsi Kelayakan}
+
+Fungsi kelayakan digunakan untuk memeriksa apakah suatu aksi dapat dilakukan tanpa melanggar aturan permainan. Beberapa kondisi yang diperiksa antara lain:
+
+\begin{itemize}
+\item Robot hanya dapat bergerak jika petak tujuan tidak ditempati robot lain dan bukan tembok.
+\item Robot hanya dapat menyerang jika musuh berada dalam radius serangan.
+\item Robot hanya dapat mewarnai petak jika memiliki cat yang cukup.
+\item Robot hanya dapat mentransfer cat jika robot sekutu berada dalam jarak transfer.
+\item Tower hanya dapat melakukan spawn jika memiliki sumber daya yang cukup dan petak spawn kosong.
+\end{itemize}
+
+Jika suatu kandidat tidak memenuhi kondisi tersebut, maka kandidat tersebut tidak dapat dipilih sebagai bagian dari solusi.
+
+\subsubsection{Fungsi Solusi}
+
+Fungsi solusi menentukan kapan proses pemilihan aksi dianggap selesai. Dalam konteks Battlecode, solusi dianggap selesai ketika setiap unit telah menentukan aksi yang akan dilakukan pada ronde tersebut.
+Dengan demikian, proses pemilihan aksi berhenti ketika:
+
+\begin{itemize}
+\item setiap robot telah memilih satu aksi dari himpunan kandidat
+\item setiap tower telah menentukan aksinya
+\item tidak ada aksi tambahan yang dapat dilakukan pada ronde tersebut
+\end{itemize}
+
+\subsubsection{Fungsi Objektif}
+
+Fungsi objektif mendefinisikan tujuan utama dari strategi greedy yang digunakan oleh bot. Berdasarkan aturan permainan Battlecode, tujuan utama permainan adalah mewarnai lebih dari 70\% wilayah peta atau menghancurkan seluruh unit musuh.
+Dengan demikian, fungsi objektif dari strategi greedy dapat dirumuskan sebagai berikut:
+
+\begin{itemize}
+\item Memaksimalkan jumlah petak wilayah yang berhasil dicat oleh tim.
+\item Meminimalkan wilayah yang dikuasai oleh tim lawan.
+\item Memaksimalkan jumlah menara sekutu yang bertahan.
+\item Memaksimalkan jumlah robot sekutu yang aktif.
+\item Meminimalkan kerugian unit akibat serangan musuh.
+\end{itemize}
+
+Strategi greedy yang digunakan oleh bot akan berusaha memilih aksi yang memberikan keuntungan terbesar terhadap tujuan-tujuan tersebut pada setiap ronde permainan.
+
+
+\subsection{Alternatif Solusi Greedy 1}
+
+\subsubsection{Heuristik yang Digunakan}
+
+Strategi greedy pertama yang dirancang berfokus pada dominasi wilayah permainan dengan tetap menjaga keberlangsungan ekonomi tim. Tujuan utama dari strategi ini adalah menguasai wilayah seluas mungkin sambil memastikan suplai \textit{paint} dan \textit{chips} tidak terputus.
+Dominasi wilayah tanpa dukungan ekonomi yang stabil akan menyebabkan robot tidak dapat bergerak karena kehabisan paint atau tim tidak dapat melakukan spawn robot baru ketika unit sebelumnya hancur. Oleh karena itu, strategi ini menggunakan dua pendekatan heuristik utama:
+
+\begin{itemize}
+\item \textbf{Greedy on Coverage} — memaksimalkan jumlah petak wilayah yang berhasil dicat.
+\item \textbf{Greedy on Resource} — memanfaatkan \textit{ruins} dan \textit{SRP} untuk meningkatkan ekonomi tim.
+\end{itemize}
+
+Fungsi seleksi dasar yang digunakan untuk memilih aksi adalah:
+
+\[
+Score = (10 \times JumlahPetakWarnaBaru) + (50 \text{ jika mendekati Ruins})
+\]
+
+Robot akan memilih aksi dengan skor tertinggi pada kondisi permainan saat itu.
+
+\subsubsection{Fokus Utama Setiap Unit}
+
+Setiap jenis robot dan tower memiliki peran yang berbeda dalam mendukung strategi ini.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Unit} & \textbf{Fokus Utama} \\
+\hline
+Splasher & Menjadi unit utama untuk melakukan ekspansi wilayah secara besar-besaran pada area kosong atau wilayah musuh. \\
+\hline
+Soldier & Digunakan untuk menyelesaikan pola pembangunan tower secara presisi pada lokasi ruins. \\
+\hline
+Mopper & Menjaga area sekitar tower agar tetap bersih dari cat musuh serta mempertahankan wilayah yang sudah dikuasai. \\
+\hline
+Tower & Pada awal permainan berfokus pada pembangunan Money Tower untuk menghasilkan chips, kemudian Paint Tower untuk mendukung ekspansi Splasher. \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Logika Greedy Sederhana}
+
+Logika greedy yang digunakan pada strategi ini dapat diringkas sebagai berikut:
+
+\begin{itemize}
+\item Jika terdapat \textit{ruins} atau SRP di dekat robot, maka robot memprioritaskan bergerak menuju lokasi tersebut.
+\item Jika tidak terdapat target sumber daya, robot akan mencari petak netral atau wilayah musuh terdekat untuk diwarnai.
+\item Robot selalu memilih aksi yang memberikan nilai tertinggi terhadap kontrol wilayah atau peningkatan sumber daya.
+\end{itemize}
+
+\subsubsection{Strategi Jalan}
+
+Pergerakan robot ditentukan menggunakan fungsi skor berikut:
+\[
+ScoreMove(d) =
+\alpha \cdot CoverageGain(d)
++
+\beta \cdot ResourceGain(d)
++
+\gamma \cdot Safety(d)
++
+\delta \cdot Connectivity(d)
+-
+\epsilon \cdot CostRisk(d)
+\]
+
+Robot akan memilih arah pergerakan $d$ dengan skor tertinggi.
+
+\textbf{Keterangan variabel}
+
+\begin{itemize}
+\item CoverageGain : peluang robot dapat mengecat lebih banyak petak netral atau musuh.
+\item ResourceGain : bonus jika pergerakan mendekati ruin, SRP, atau paint tower sekutu.
+\item Safety : bonus jika robot berada pada wilayah sekutu atau menjauhi tower musuh.
+\item Connectivity : bonus jika pergerakan menjaga konektivitas jalur cat sekutu.
+\item CostRisk : penalti jika pergerakan masuk wilayah musuh dengan paint rendah, mendekati tower musuh, atau menuju area buntu.
+\end{itemize}
+
+Robot menggunakan beberapa mode operasi:
+EXPAND, BUILD\_TOWER, BUILD\_SRP, DEFEND\_PAINT\_LINE, REFILL, RETREAT
+
+\begin{longtable}{|p{0.22\textwidth}|p{0.72\textwidth}|}\caption{Strategi jalan untuk masing-masing robot} \\
+
+\hline
+\textbf{Robot} & \textbf{Strategi Jalan} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Robot} & \textbf{Strategi Jalan (lanjutan)} \\
+\hline
+\endhead
+
+Splasher &
+\begin{itemize}[leftmargin=*, nosep]
+    \item Mengenumerasi semua petak yang mungkin dijadikan pusat serangan dalam jangkauan aksi.
+    \item Menghitung jumlah petak netral atau petak musuh yang dapat terdampak oleh serangan area (AoE).
+    \item Memilih arah gerakan yang mendekatkan robot pada pusat serangan dengan nilai dampak terbesar.
+    \item Memberikan bonus besar pada area dengan cluster petak musuh atau netral yang padat.
+    \item Memberikan bonus sedang pada frontier wilayah kosong yang luas.
+    \item Memberikan penalti jika hasil AoE mengenai banyak petak yang sudah dimiliki sendiri tanpa membuka frontier baru.
+    \item Memberikan penalti tinggi jika setelah melakukan serangan sisa paint menjadi terlalu rendah.
+    \end{itemize}
+    \\
+    \hline
+
+Soldier &
+\begin{itemize}[leftmargin=*, nosep]
+    \item Jika terdapat \textit{ruin} yang terdeteksi, robot akan langsung bergerak menuju lokasi tersebut.
+    \item Jika sedang mengerjakan pembangunan \textit{tower} atau \textit{Special Resource Pattern (SRP)}, robot memilih gerakan yang meminimalkan waktu penyelesaian pola.
+    \item Jika tidak terdapat tugas ekonomi aktif, robot akan bergerak untuk menutup frontier wilayah di sekitar tower yang baru dibangun.
+    \item Petak musuh di sekitar \textit{ruin}, tower, atau SRP memiliki prioritas target tertinggi.
+    \item Petak musuh pada jalur komunikasi cat sekutu menjadi prioritas kedua.
+    \item Petak musuh biasa diprioritaskan setelah kedua kondisi di atas.
+    \end{itemize}
+    \\
+    \hline
+
+Mopper &
+\begin{itemize}[leftmargin=*, nosep]
+    \item Bergerak menuju area dengan banyak cat musuh di sekitar ruin, tower, atau SRP.
+\item Memprioritaskan pembersihan wilayah yang penting bagi stabilitas ekonomi tim.
+\item Bergerak ke jalur komunikasi cat sekutu yang sering rusak untuk memperbaiki konektivitas wilayah.
+\item Mendukung robot sekutu yang memiliki paint rendah dengan melakukan transfer paint apabila diperlukan.
+\item Membersihkan area inti tim dengan cepat ketika terdapat gangguan dari cat musuh.
+\end{itemize}
+\\
+\hline
+
+\end{longtable}
+
+\subsubsection{Strategi Target Cat}
+
+Strategi target cat berfokus pada aksi pewarnaan yang memberikan peningkatan kontrol wilayah terbesar dengan biaya paint yang efisien.
+
+\textbf{Splasher}
+
+Splasher memilih pusat serangan yang memaksimalkan dampak area.
+
+\[
+ScoreSplash(c)
+=
+8E + 5N + 2F + 20R - 6A - 10W - 4Overpaint
+\]
+
+Keterangan:
+
+\begin{itemize}
+\item $E$ : jumlah petak musuh yang dapat ditimpa
+\item $N$ : jumlah petak netral yang dapat diwarnai
+\item $F$ : jumlah petak yang memperluas frontier wilayah
+\item $R$ : bonus jika dekat ruin atau SRP strategis
+\item $A$ : jumlah petak sekutu yang terbuang
+\item $W$ : jumlah petak tidak berguna
+\item Overpaint : area yang sudah aman milik sendiri
+\end{itemize}
+
+\begin{longtable}{|p{3cm}|p{11cm}|}
+\caption{Prioritas strategi target cat untuk masing-masing robot} \\
+
+\hline
+\textbf{Robot} & \textbf{Prioritas Target Cat} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Robot} & \textbf{Prioritas Target Cat (lanjutan)} \\
+\hline
+\endhead
+
+Splasher &
+\begin{itemize}[leftmargin=*, nosep]
+\item Petak yang memungkinkan serangan area mengenai banyak petak musuh sekaligus.
+\item Petak netral yang berada pada cluster besar sehingga memberikan ekspansi wilayah yang signifikan.
+\item Petak pada frontier wilayah yang dapat membuka akses ekspansi ke area baru.
+\item Petak musuh yang memutus konektivitas wilayah cat sekutu.
+\item Petak netral biasa yang berada di sekitar posisi robot.
+\end{itemize}
+\\
+\hline
+
+Soldier &
+\begin{itemize}[leftmargin=*, nosep]
+\item Petak yang merupakan bagian dari pola pembangunan tower pada lokasi \textit{ruin}.
+\item Petak yang merupakan bagian dari pola \textit{Special Resource Pattern (SRP)}.
+\item Petak musuh yang berada di sekitar ruin atau tower sekutu.
+\item Petak musuh yang mengganggu jalur komunikasi cat sekutu.
+\item Petak netral yang berada di sekitar posisi robot.
+\end{itemize}
+\\
+\hline
+
+Mopper &
+\begin{itemize}[leftmargin=*, nosep]
+\item Petak yang dicat oleh musuh di sekitar tower sekutu.
+\item Petak musuh yang berada di sekitar ruin atau SRP yang sedang dibangun.
+\item Petak musuh yang memutus jalur konektivitas cat sekutu.
+\item Petak musuh yang berada pada wilayah inti tim.
+\item Petak musuh biasa yang berada di sekitar posisi robot.
+\end{itemize}
+\\
+\hline
+
+\end{longtable}
+
+\subsubsection{Manajemen Sumber Daya}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\hline
+\textbf{Early Game} & \textbf{Mid Game} & \textbf{Late Game} \\
+\hline
+
+\begin{itemize}[leftmargin=*, nosep]
+\item stabilkan income chips dan paint
+\item buka 1--2 garis ekspansi
+\end{itemize}
+
+&
+
+\begin{itemize}[leftmargin=*, nosep]
+\item percepat coverage
+\item amankan suplai paint untuk Splasher
+\end{itemize}
+
+&
+
+\begin{itemize}[leftmargin=*, nosep]
+\item maximize map coverage
+\item convert ekonomi jadi spam unit / refill paint / menjaga tiebreaker
+\end{itemize}
+
+\\
+\hline
+
+\begin{itemize}[leftmargin=*, nosep]
+\item ruin dekat + aman $\rightarrow$ bangun tower
+\item prefer Money Tower dulu jika chips menjadi bottleneck spawn
+\item jangan terlalu banyak investasi SRP terlalu dini
+\end{itemize}
+
+&
+
+\begin{itemize}[leftmargin=*, nosep]
+\item mulai tambah Paint Tower
+\item bangun SRP jika area sekitar cukup aman dijaga 50 ronde
+\item Mopper lebih aktif menjaga pola dan wilayah sekitar tower
+\end{itemize}
+
+&
+
+\begin{itemize}[leftmargin=*, nosep]
+\item Money Tower tambahan hanya jika masih benar-benar menaikkan tempo spawn
+\item kalau bottleneck utama sudah paint, ubah prioritas ke Paint Tower
+\end{itemize}
+
+\\
+\hline
+
+\end{tabular}
+\caption{Strategi manajemen sumber daya berdasarkan fase permainan}
+\end{table}
+
+Manajemen sumber daya dilakukan dengan menghitung kebutuhan tim pada setiap ronde.
+
+\begin{itemize}
+\item $NeedPaint = jumlah\ splasher\ aktif \times konsumsi\ paint$
+\item $NeedChips = target\ spawn\ rate \times biaya\ unit$
+\item $NeedDefense = jumlah\ ruin/SRP\ yang\ rawan$
+\end{itemize}
+
+Keputusan strategi:
+
+\begin{itemize}
+\item Jika chips rendah dan paint cukup → prioritaskan Money Tower
+\item Jika paint rendah dan unit aktif banyak → prioritaskan Paint Tower
+\item Jika area rawan besar → tambah Mopper
+\item Jika ekspansi lambat tetapi resource aman → tambah Splasher
+\end{itemize}
+
+\subsubsection{Spawn Strategy}
+
+\begin{itemize}
+\item Early game : Soldier lebih banyak untuk membuka ruin
+\item Mid game : Splasher menjadi unit dominan
+\item Jika banyak kontestasi ruin : jumlah Mopper meningkat
+\item Jika ekonomi paint stabil : produksi Splasher meningkat
+\end{itemize}
+
+\subsubsection{Pemanfaatan Pola Khusus (SRP dan Tower)}
+
+Pemilihan ruin untuk pembangunan tower menggunakan skor berikut:
+\[
+ScoreRuin =
+50 - 2 \times Distance
++ 20 \times Safety
++ 25 \times ExpansionValue
+- 15 \times EnemyInterference
+\]
+
+Prioritas pemilihan ruin:
+
+\begin{enumerate}
+\item jarak relatif dekat
+\item area sekitar tidak didominasi cat musuh
+\item tersedia paint untuk menyelesaikan pola
+\item tidak terlalu banyak unit lain yang sedang mengerjakan
+\item tower yang dihasilkan mendukung ekspansi selanjutnya
+\end{enumerate}
+
+\subsection{Alternatif Solusi Greedy 2}
+
+Strategi agresif berfokus pada ekspansi wilayah secara cepat dan penekanan terhadap wilayah musuh. Robot diprioritaskan untuk bergerak menuju area yang memiliki konsentrasi petak musuh atau petak netral yang dapat segera diambil alih.
+
+Arah pergerakan robot ditentukan menggunakan fungsi heuristik berikut:
+\[
+\begin{aligned}
+score(d) ={}& -10 \cdot dist^2(nextLoc(d), target)+ \sum dist^2(nextLoc(d), ally_i) - \sum dist^2(nextLoc(d), enemy_j) \\
+            & + 8 \quad (\text{jika tile EMPTY}) + 20 \quad (\text{jika tile ENEMY\_PRIMARY atau ENEMY\_SECONDARY})
+\end{aligned}
+\]
+
+Heuristik ini memberikan prioritas pergerakan menuju area yang mengandung petak musuh atau petak netral, sehingga robot dapat secara agresif memperluas wilayah tim sekaligus menekan wilayah lawan.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+\multicolumn{2}{|c|}{\textbf{Early Phase}} \\
+\hline
+\textbf{Unit} & \textbf{Strategi} \\
+\hline
+
+Tower (Round $\leq$ 300) &
+Fokus memproduksi robot \textit{Soldier}. Robot Soldier diarahkan menuju lokasi kandidat tower musuh untuk menghancurkan tower tersebut sejak awal permainan. \\
+\hline
+
+Soldier (Round $\leq$ 300) &
+Bergerak menuju dua tower awal milik musuh dengan tujuan menghancurkan tower tersebut pada fase awal permainan. \\
+\hline
+
+Splasher (300 $\leq$ round $\leq$ 600) &
+Berfokus mengambil wilayah pada area tengah peta serta mengurangi persentase wilayah yang dimiliki oleh musuh. \\
+\hline
+
+Mopper (300 $\leq$ round $\leq$ 600) &
+Mencari robot musuh di sekitar wilayah permainan dan melakukan serangan untuk mengganggu ekspansi wilayah lawan. \\
+\hline
+
+\end{tabular}
+\caption{Strategi agresif pada Early Phase}
+\end{table}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+\multicolumn{2}{|c|}{\textbf{Mid Phase}} \\
+\hline
+\textbf{Unit} & \textbf{Strategi} \\
+\hline
+
+Tower (Round $\leq$ 800) &
+Tower memproduksi semua jenis robot dengan komposisi rasio sekitar 1:2:1 untuk Soldier, Splasher, dan Mopper. \\
+\hline
+
+Soldier (Round $\leq$ 1000) &
+Fokus bergerak menuju robot musuh untuk melakukan penyerangan. Jika tidak terdapat musuh di sekitar wilayah tersebut, robot akan kembali menggunakan strategi seperti pada Early Phase. \\
+\hline
+
+Splasher (600 $\leq$ round $\leq$ 1000) &
+Berfokus untuk mengambil wilayah yang dimiliki musuh serta mencari area yang dapat diperluas. \\
+\hline
+
+Mopper (600 $\leq$ round $\leq$ 1000) &
+Mencari keberadaan robot musuh dan melakukan serangan untuk mengganggu kontrol wilayah lawan. \\
+\hline
+
+\end{tabular}
+\caption{Strategi agresif pada Mid Phase}
+\end{table}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+\multicolumn{2}{|c|}{\textbf{Late Phase}} \\
+\hline
+\textbf{Unit} & \textbf{Strategi} \\
+\hline
+
+Tower (Round $\geq$ 1000) &
+Tower memfokuskan produksi pada robot Splasher dan Mopper untuk membersihkan wilayah musuh serta mengubahnya menjadi wilayah milik tim. \\
+\hline
+
+Soldier (Round $\geq$ 1000) &
+Jika masih terdapat robot Soldier yang aktif, robot tersebut akan mencari lokasi \textit{ruins} untuk membangun tower tambahan guna memperoleh sumber daya tambahan yang dapat digunakan untuk memproduksi robot Splasher dan Mopper. \\
+\hline
+
+Splasher &
+Bergerak menuju arah tower musuh untuk mencari tower yang masih bertahan. Jika tidak ditemukan, robot akan bergerak menuju sisi atau sudut wilayah musuh untuk memperluas kontrol wilayah tim. \\
+\hline
+
+Mopper &
+Bergerak menuju robot sekutu terdekat dan mengikuti pergerakannya untuk memberikan dukungan sekaligus membersihkan wilayah yang masih dikuasai musuh. \\
+\hline
+
+\end{tabular}
+\caption{Strategi agresif pada Late Phase}
+\end{table}
+
+\subsection{Alternatif Solusi Greedy 3}
+
+Strategi ini menggunakan pendekatan berbasis \textit{state} yang ditentukan oleh beberapa faktor utama, yaitu jumlah paint yang dimiliki robot, jarak terhadap tower sekutu, posisi musuh, serta peluang untuk mewarnai wilayah secara efisien.
+
+Robot akan menentukan tindakan yang diambil berdasarkan state yang sedang dialami, sehingga keputusan yang diambil bersifat adaptif terhadap kondisi permainan. Setiap state menentukan prioritas tindakan robot seperti melakukan ekspansi wilayah, mempertahankan wilayah, kembali ke tower untuk mengisi ulang paint, atau melakukan penarikan diri dari wilayah musuh.
+
+\subsubsection{State Robot}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+\textbf{State} & \textbf{Deskripsi dan Perilaku} \\
+\hline
+
+Refill &
+Aktif ketika paint $\leq$ 20\%. Pada kondisi ini robot diperkirakan akan mengalami penalti besar jika tetap bergerak atau menyerang dalam beberapa ronde ke depan.
+\begin{itemize}[leftmargin=*, nosep]
+\item Bergerak menuju paint tower sekutu terdekat
+\item Mendekati Mopper sekutu apabila berada di dekatnya
+\item Bergerak menuju wilayah sekutu dan menjauhi wilayah musuh
+\end{itemize}
+\\
+\hline
+
+Return to Tower &
+Aktif ketika $20\% \leq paint \leq 40\%$ dan robot berada jauh dari tower atau terlalu dalam di wilayah musuh.
+\begin{itemize}[leftmargin=*, nosep]
+\item Mundur menuju wilayah sekutu
+\item Mengecat tile yang murah jika memungkinkan
+\item Memprioritaskan tile yang dapat memperluas jalur sekutu menuju tower
+\end{itemize}
+\\
+\hline
+
+Maintain &
+Aktif ketika jumlah paint cukup dan tidak ada kebutuhan mendesak untuk ekspansi atau pengisian ulang.
+\begin{itemize}[leftmargin=*, nosep]
+\item Mengecat tile kosong yang dapat membangun koridor aman
+\item Memperluas area di sekitar tower
+\item Membantu menyelesaikan pola pembangunan
+\item Menghindari tile yang dapat membuat robot terisolasi
+\end{itemize}
+\\
+\hline
+
+Expand &
+Aktif ketika paint $>$ 50\% dan terdapat jalur aman untuk bergerak maju.
+\begin{itemize}[leftmargin=*, nosep]
+\item Menargetkan tile netral yang mudah diambil
+\item Bergerak ke frontier antara wilayah sekutu dan wilayah netral
+\item Memperluas wilayah tanpa terlalu dalam memasuki area musuh
+\item Menargetkan tile di sekitar ruin atau SRP
+\end{itemize}
+\\
+\hline
+
+Contest Light &
+Aktif ketika terdapat cat musuh di dekat frontier dan robot memiliki peluang menyerang dengan paint yang cukup.
+\begin{itemize}[leftmargin=*, nosep]
+\item Menghapus atau menimpa tile musuh yang strategis
+\item Memfokuskan pada pengurangan kontrol wilayah musuh
+\item Menjaga efisiensi penggunaan paint
+\end{itemize}
+\\
+\hline
+
+Retreat &
+Aktif ketika paint rendah dan terdapat musuh di sekitar atau ketika posisi robot berada di wilayah musuh.
+\begin{itemize}[leftmargin=*, nosep]
+\item Mundur menuju wilayah sekutu terdekat
+\item Memilih tile dengan penalti penggunaan paint minimum
+\item Menghindari kerumunan robot sekutu
+\end{itemize}
+\\
+\hline
+
+\end{tabular}
+\caption{State robot dalam strategi greedy}
+\end{table}
+
+\subsubsection{Alur Setiap Robot}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+\textbf{Robot} & \textbf{Peran dan Perilaku} \\
+\hline
+
+Soldier &
+Berperan sebagai unit garis depan yang bertugas melakukan ekspansi wilayah secara aman.
+\begin{itemize}[leftmargin=*, nosep]
+\item Mengisi frontier wilayah sekutu
+\item Membantu penyelesaian pola pembangunan
+\item Menyerang tower musuh apabila biaya serangan relatif murah dan aman
+\end{itemize}
+
+Perilaku berdasarkan paint:
+\begin{itemize}[leftmargin=*, nosep]
+\item Paint rendah: kembali ke tower
+\item Paint sedang: mendukung frontier
+\item Paint tinggi: melakukan ekspansi
+\end{itemize}
+\\
+\hline
+
+Mopper &
+Berperan sebagai unit logistik utama yang menjaga stabilitas pasokan paint.
+\begin{itemize}[leftmargin=*, nosep]
+\item Mendistribusikan paint kepada robot sekutu
+\item Membersihkan cat musuh pada frontier
+\item Menjadi penghubung antara tower dan robot sekutu di garis depan
+\end{itemize}
+
+Perilaku tambahan:
+\begin{itemize}[leftmargin=*, nosep]
+\item Transfer paint jika terdapat sekutu dengan paint rendah
+\item Membersihkan tile musuh jika jumlahnya banyak
+\item Mendekati Soldier atau Splasher yang jauh dari tower
+\end{itemize}
+\\
+\hline
+
+Splasher &
+Unit situasional yang digunakan pada kondisi tertentu.
+\begin{itemize}[leftmargin=*, nosep]
+\item Tidak diproduksi pada awal permainan
+\item Digunakan ketika terdapat cluster tile bernilai tinggi
+\item Dipanggil ketika sumber daya tim sudah stabil
+\item Bergerak bersama jalur suplai sekutu
+\item Menyerang jika area cakupan serangan cukup besar
+\end{itemize}
+\\
+\hline
+
+\end{tabular}
+\caption{Alur perilaku setiap jenis robot}
+\end{table}
+
+\subsubsection{Alur Robot Setiap Phase}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+\textbf{Phase} & \textbf{Strategi} \\
+\hline
+
+Early Game &
+\begin{itemize}[leftmargin=*, nosep]
+\item Menghindari ekspansi berlebihan
+\item Membangun wilayah aman di sekitar tower
+\item Membuka jalur paint yang stabil
+\item Spawn unit secara hemat dan stabil (Soldier dan beberapa Mopper)
+\item Memperluas radius wilayah aman
+\item Menjaga robot tetap berada di atas batas aman paint
+\end{itemize}
+\\
+\hline
+
+Mid Game &
+\begin{itemize}[leftmargin=*, nosep]
+\item Mengontrol frontier wilayah
+\item Menjaga jalur suplai antara tower dan unit garis depan
+\item Melakukan serangan ringan terhadap wilayah musuh
+\item Membantu pembangunan pola tower atau SRP jika kondisi aman
+\end{itemize}
+\\
+\hline
+
+Late Game &
+\begin{itemize}[leftmargin=*, nosep]
+\item Mempertahankan luas wilayah yang dimiliki
+\item Menghindari kehilangan unit yang tidak perlu
+\item Melakukan spawn unit secara kontinu
+\item Menjaga kondisi tiebreaker seperti luas area, jumlah tower, total paint, dan jumlah unit hidup
+\end{itemize}
+\\
+\hline
+
+\end{tabular}
+\caption{Alur strategi bot berdasarkan fase permainan}
+\end{table}
+
+\subsubsection{Threshold}
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3cm}|p{4cm}|p{7cm}|}
+\hline
+\textbf{Robot} & \textbf{Threshold Paint} & \textbf{Tindakan} \\
+\hline
+
+Soldier & Paint $>$ 50\% & Boleh melakukan ekspansi wilayah \\
+\cline{2-3}
+ & $30\% < paint \leq 50\%$ & Mendukung frontier yang aman \\
+\cline{2-3}
+ & $paint \leq 30\%$ & Kembali menuju tower \\
+\cline{2-3}
+ & $paint \leq 15\%$ & Wajib melakukan refill \\
+\hline
+
+Mopper & Paint $>$ 60\% & Mendukung frontier dan membersihkan wilayah musuh \\
+\cline{2-3}
+ & $25\% < paint \leq 60\%$ & Tetap berada dekat robot sekutu \\
+\cline{2-3}
+ & $paint \leq 25\%$ & Kembali ke tower untuk mengambil paint \\
+\hline
+
+Splasher & Paint $>$ 65\% & Boleh melakukan serangan AoE \\
+\cline{2-3}
+ & $paint \leq 65\%$ & Menahan serangan agar tidak membuang paint secara tidak efisien \\
+\hline
+
+\end{tabular}
+\caption{Threshold keputusan robot berdasarkan jumlah paint}
+\end{table}
+
+
+\subsection{Analisis Efisiensi}
+
+Analisis berikut membahas efisiensi dan efektivitas dari setiap bot. Efisiensi berkaitan dengan
+penggunaan sumber daya komputasi maupun sumber daya permainan seperti paint dan chips, serta
+penggunaan bytecode pada setiap giliran. Sementara itu, efektivitas berkaitan dengan sejauh mana strategi
+tersebut mampu mencapai tujuan utama permainan, yaitu menguasai wilayah peta dan memenangkan
+pertandingan. 
+
+\subsubsection{Alternatif Solusi Greedy 1}
+
+Bot pertama menggunakan strategi greedy yang berfokus pada pembangunan menara dan penguatan ekonomi tim. Berbeda dengan bot kedua yang memprioritaskan ekspansi agresif, bot ini lebih
+menekankan stabilitas jangka panjang melalui pembangunan tower pada lokasi ruins yang tersedia di
+peta.
+
+Dari sisi efisiensi komputasi, strategi ini sedikit lebih kompleks karena robot harus mempertimbangkan
+lebih banyak kondisi sebelum memilih aksi. Robot perlu mendeteksi keberadaan ruins di sekitar peta, 
+mengevaluasi apakah lokasi tersebut aman untuk pembangunan tower, serta menentukan apakah sumber 
+daya yang dimiliki cukup untuk menyelesaikan pola pembangunan. Walaupun demikian, kompleksitas ini 
+masih dapat dianggap efisien karena sebagian besar perhitungan tetap bersifat lokal. Robot hanya perlu 
+memeriksa informasi mengenai ruins terdekat, kondisi wilayah di sekitar lokasi tersebut, serta jumlah 
+paint yang dimiliki. Tidak ada pencarian global terhadap seluruh peta yang dapat menghabiskan bytecode 
+secara signifikan. Dengan demikian, strategi ini masih berada dalam batas penggunaan bytecode yang 
+wajar untuk setiap giliran.
+
+Kelemahan dari sisi efisiensi muncul pada banyaknya mode atau state yang digunakan dalam strategi ini. 
+Robot dapat berpindah antara beberapa mode seperti eksplorasi, pembangunan tower, pengisian ulang 
+paint, atau pertahanan wilayah. Jika transisi antar mode ini tidak dikendalikan dengan baik, robot dapat 
+menghabiskan beberapa ronde hanya untuk berpindah mode tanpa menghasilkan kontribusi signifikan 
+terhadap kontrol wilayah. Misalnya, robot dapat berpindah dari mode eksplorasi ke mode pembangunan, 
+kemudian kembali lagi ke eksplorasi sebelum pola pembangunan selesai. Meskipun demikian, secara 
+keseluruhan strategi ini masih cukup efisien dalam penggunaan sumber daya permainan karena 
+pembangunan tower secara konsisten akan meningkatkan produksi paint dan chips pada jangka panjang.
+
+Dari sisi efektivitas, bot pertama ini dapat dianggap sebagai strategi yang paling stabil di antara ketiga 
+alternatif yang dirancang. Pembangunan tower memberikan keuntungan jangka panjang yang signifikan 
+karena tower tidak hanya berfungsi sebagai unit pertahanan tetapi juga sebagai sumber produksi sumber 
+daya. Money tower akan meningkatkan jumlah chips yang tersedia untuk spawn robot baru, sementara 
+paint tower akan meningkatkan suplai paint yang dapat digunakan oleh robot sekutu. Dengan 
+bertambahnya jumlah tower yang dimiliki tim, kapasitas ekspansi wilayah juga meningkat karena robot 
+dapat melakukan refill paint lebih sering tanpa harus kembali ke tower awal. Selain itu, tower juga 
+
+memberikan perlindungan tambahan terhadap serangan musuh sehingga wilayah yang sudah dikuasai 
+menjadi lebih sulit direbut kembali oleh lawan. Walaupun strategi ini membutuhkan waktu lebih lama 
+pada fase awal permainan untuk menyelesaikan pola pembangunan tower, keuntungan ekonomi yang 
+dihasilkan akan sangat terasa pada fase mid game dan late game. Dengan ekonomi yang lebih kuat, tim 
+dapat memproduksi lebih banyak robot serta mempertahankan wilayah dengan lebih stabil.
+
+Namun, strategi ini juga memiliki beberapa kelemahan. Fokus yang terlalu besar pada pembangunan 
+tower dapat menyebabkan ekspansi wilayah menjadi lebih lambat pada fase awal permainan. Jika lawan 
+menggunakan strategi agresif dan berhasil menguasai sebagian besar wilayah peta sejak awal, bot ini 
+mungkin kesulitan untuk mengejar ketertinggalan tersebut.
+
+
+\subsubsection{Alternatif Solusi Greedy 2}
+
+Bot kedua menggunakan pendekatan greedy agresif yang memprioritaskan serangan terhadap musuh 
+sebagai aksi utama pada setiap giliran. Strategi ini dirancang untuk menghasilkan tekanan tinggi pada 
+wilayah lawan sejak awal permainan dengan cara mempercepat kontak antara robot sekutu dan wilayah 
+musuh.
+
+Dari sisi efisiensi komputasi, strategi ini relatif sederhana. Keputusan robot sebagian besar hanya 
+didasarkan pada informasi lokal yang dapat diperoleh melalui fungsi sensing pada radius penglihatan 
+robot. Robot tidak perlu melakukan evaluasi global terhadap seluruh peta, melainkan cukup memeriksa 
+apakah terdapat musuh, wilayah netral, atau wilayah musuh di sekitar posisi saat ini. Pendekatan ini 
+membuat proses evaluasi aksi menjadi cepat dan ringan sehingga penggunaan bytecode pada setiap 
+giliran tetap rendah. Hal ini penting karena dalam Battlecode setiap robot memiliki batas penggunaan 
+bytecode pada setiap ronde, dan jika batas tersebut terlampaui maka eksekusi program robot akan 
+berhenti sebelum seluruh logika selesai dijalankan.Selain itu, pembagian strategi ke dalam tiga fase 
+permainan yaitu early phase, mid phase, dan late phase juga memberikan keuntungan dari sisi efisiensi 
+desain. Dengan membagi permainan berdasarkan jumlah ronde, setiap robot dapat menggunakan aturan 
+yang lebih sederhana pada masing-masing fase tanpa harus melakukan perhitungan kompleks mengenai 
+kondisi permainan secara keseluruhan. Pendekatan ini membuat implementasi program menjadi lebih 
+modular dan lebih mudah dipahami.
+
+Namun, dari sisi efisiensi penggunaan sumber daya permainan, bot ini memiliki beberapa kekurangan. 
+Heuristik yang digunakan untuk memilih aksi cenderung terlalu kasar sehingga tidak selalu 
+mempertimbangkan kondisi sumber daya secara optimal. Misalnya, pemilihan unit yang di-spawn oleh 
+tower sebagian besar ditentukan oleh fase permainan, bukan oleh kebutuhan aktual di lapangan. Selain 
+itu, pengelolaan cadangan paint pada robot tidak terlalu diperhatikan secara eksplisit. Akibatnya, robot 
+sering tetap bergerak atau menyerang secara agresif meskipun cadangan paint sedang rendah. Padahal 
+dalam aturan permainan, robot yang memiliki paint rendah akan mengalami peningkatan cooldown pada aksi tertentu. Hal ini dapat menyebabkan robot menjadi tidak efektif dalam melakukan ekspansi wilayah 
+atau serangan. Dengan kata lain, walaupun strategi ini efisien dari sisi komputasi, efisiensi penggunaan 
+sumber daya permainan masih dapat ditingkatkan.
+
+Dari sisi efektivitas, bot kedua memiliki beberapa keunggulan pada fase awal permainan. Strategi agresif 
+memungkinkan robot untuk dengan cepat menjangkau wilayah musuh dan mulai mengganggu kontrol 
+wilayah lawan. Pada peta yang relatif terbuka dan tidak terlalu banyak rintangan, bot ini dapat menyebar 
+dengan cepat dan menekan wilayah lawan sebelum mereka sempat membangun struktur atau menyiapkan 
+pertahanan yang kuat. Selain itu, karena peta pada Battlecode bersifat simetris, strategi ini sering dapat 
+memanfaatkan informasi mengenai posisi awal musuh untuk langsung mengarahkan robot menuju lokasi 
+yang kemungkinan besar menjadi pusat aktivitas lawan. Hal ini meningkatkan peluang terjadinya konflik 
+awal yang dapat menguntungkan tim jika berhasil memenangkan pertarungan tersebut.
+
+Namun, efektivitas strategi ini cenderung menurun pada fase permainan yang lebih panjang. Hal ini 
+disebabkan oleh kurangnya pengelolaan ekonomi dan logistik dalam strategi tersebut. Pembangunan 
+menara tidak selalu menjadi prioritas, sehingga kapasitas produksi paint dan chips tim dapat tertinggal 
+dibandingkan lawan yang lebih fokus pada pembangunan struktur ekonomi. Selain itu, peran robot 
+Mopper dalam strategi ini relatif terbatas dan lebih bersifat reaktif, yaitu hanya membersihkan cat musuh 
+di sekitar wilayah sekutu tanpa berperan aktif dalam menjaga suplai paint bagi robot garis depan. 
+Akibatnya, meskipun bot ini dapat memberikan tekanan tinggi pada awal permainan, performanya sering 
+kali menurun pada fase mid game dan late game ketika lawan sudah memiliki ekonomi yang lebih stabil 
+serta produksi unit yang lebih konsisten. Dalam kondisi tersebut, bot ini dapat kesulitan mempertahankan 
+wilayah yang telah diperoleh sebelumnya.
+
+\subsubsection{Alternatif Solusi Greedy 3}
+
+Bot ketiga menggunakan pendekatan greedy yang berfokus pada efisiensi penggunaan sumber daya dalam 
+setiap keputusan. Strategi ini mengadopsi pendekatan berbasis state di mana robot menentukan tindakan 
+berdasarkan kondisi internal seperti jumlah paint, posisi relatif terhadap tower sekutu, keberadaan musuh 
+di sekitar, serta peluang ekspansi wilayah.
+
+Dari sisi efisiensi komputasi, bot ini merupakan yang paling kompleks di antara ketiga strategi yang 
+dikembangkan. Setiap robot perlu mengevaluasi berbagai kemungkinan aksi berdasarkan beberapa faktor 
+sekaligus, seperti keuntungan wilayah yang diperoleh, biaya paint yang dikeluarkan, risiko terhadap 
+serangan musuh, serta keberlanjutan posisi robot pada beberapa ronde berikutnya. Meskipun demikian, 
+strategi ini tetap dirancang agar sesuai dengan batas bytecode yang ditetapkan oleh permainan. Sebagian 
+besar evaluasi keputusan hanya menggunakan data lokal yang diperoleh dari fungsi sensing pada ronde 
+tersebut. Tidak ada penggunaan algoritma pencarian yang kompleks seperti pathfinding global atau 
+perhitungan optimasi yang memerlukan iterasi besar. Selain itu, beberapa optimasi juga diterapkan untuk 
+mengurangi biaya komputasi, seperti menyimpan informasi mengenai lokasi ruin dalam cache untuk 
+beberapa ronde serta membatasi target ekspansi robot hanya pada area tertentu. Dengan pendekatan ini, 
+kompleksitas keputusan tetap dapat dikendalikan sehingga robot tidak melampaui batas bytecode yang 
+tersedia.
+
+Dari sisi efektivitas, strategi ini memiliki pendekatan yang sangat berhati-hati dalam menggunakan 
+sumber daya. Robot akan selalu mempertimbangkan rasio antara keuntungan yang diperoleh dan biaya 
+yang harus dikeluarkan sebelum melakukan suatu aksi. Hal ini membuat penggunaan paint menjadi lebih 
+hemat dan mengurangi risiko robot kehabisan paint di wilayah musuh.
+
+Namun, fokus yang terlalu besar pada efisiensi lokal ini juga menimbulkan beberapa kelemahan. Karena 
+robot cenderung memilih aksi yang paling efisien secara langsung, mereka sering menghindari tindakan 
+yang memiliki risiko lebih tinggi tetapi berpotensi memberikan keuntungan strategis yang lebih besar. 
+Misalnya, robot mungkin memilih untuk memperluas wilayah secara perlahan di sekitar area aman 
+daripada melakukan penetrasi lebih dalam ke wilayah musuh. Akibatnya, tekanan terhadap wilayah lawan 
+menjadi relatif lebih rendah dibandingkan dengan strategi agresif pada bot pertama. Selain itu, 
+pembangunan tower juga tidak selalu menjadi prioritas utama dalam strategi ini karena robot sering lebih 
+fokus pada optimalisasi penggunaan paint pada wilayah yang sudah dikuasai.
+
+Secara keseluruhan, strategi ini sangat baik dalam menjaga stabilitas sumber daya dan meminimalkan 
+kerugian unit. Namun, dalam beberapa situasi permainan, strategi ini dapat menjadi terlalu defensif 
+sehingga kehilangan momentum ekspansi wilayah yang penting untuk memenangkan permainan.
+
+
+\subsection{Strategi yang Dipilih}
+
+Dari tiga alternatif strategi greedy yang telah dirancang dan dianalisis sebelumnya, strategi yang dipilih 
+untuk diimplementasikan dalam program adalah strategi pada Alternatif Solusi Greedy 1, yaitu strategi 
+greedy yang berfokus pada pembangunan menara (tower) dan penguatan ekonomi tim.
+
+Pemilihan strategi ini didasarkan pada beberapa pertimbangan utama, seperti stabilitas permainan, 
+efisiensi penggunaan sumber daya, serta efektivitas dalam jangka panjang. Dari sisi efektivitas 
+permainan, strategi Alternatif 1 dinilai lebih mampu memberikan performa yang stabil sepanjang 
+permainan. Berbeda dengan Alternatif 2 yang lebih agresif dalam melakukan ekspansi wilayah sejak awal 
+permainan, Alternatif 1 menempatkan pembangunan tower sebagai prioritas utama ketika menemukan 
+lokasi ruins yang tersedia. Tower memiliki peran penting dalam permainan karena dapat menghasilkan 
+sumber daya tambahan seperti paint dan chips, serta berfungsi sebagai titik pertahanan terhadap serangan 
+musuh. Dengan meningkatnya jumlah tower yang dimiliki tim, kapasitas produksi sumber daya akan 
+meningkat sehingga tim dapat memproduksi lebih banyak robot serta mempertahankan wilayah dengan 
+lebih baik.
+
+Secara efisiensi penggunaan sumber daya, strategi Alternatif 1 memberikan pengelolaan sumber daya 
+yang lebih terstruktur. Pembangunan tower memungkinkan tim memperoleh suplai paint dan chips secara 
+berkelanjutan sehingga robot tidak terlalu sering mengalami kekurangan sumber daya saat melakukan 
+ekspansi wilayah atau serangan. Selain itu, keberadaan tower juga mempermudah robot untuk melakukan 
+pengisian ulang paint tanpa harus kembali ke titik awal, sehingga waktu dan langkah pergerakan robot 
+dapat digunakan secara lebih efisien.
+
+Strategi Alternatif 1 dinilai memiliki keseimbangan antara ekspansi wilayah dan pembangunan 
+infrastruktur tim. Walaupun pembangunan tower membutuhkan waktu pada fase awal permainan, 
+keuntungan ekonomi yang dihasilkan akan memberikan dampak yang signifikan pada fase permainan 
+selanjutnya. Dengan ekonomi yang lebih kuat, tim dapat memproduksi robot secara lebih konsisten serta 
+memperluas wilayah dengan lebih stabil.
+
+Strategi ini juga lebih adaptif terhadap berbagai kondisi peta. Pada peta yang memiliki banyak ruins, 
+Alternatif 1 dapat memanfaatkan peluang tersebut untuk membangun lebih banyak tower dan 
+memperkuat kontrol wilayah secara bertahap. Hal ini memberikan keuntungan strategis dibandingkan 
+pendekatan yang hanya berfokus pada ekspansi agresif tanpa mempertimbangkan pembangunan ekonomi.
+
+Berdasarkan pertimbangan tersebut, strategi greedy pada Alternatif 1 dipilih sebagai strategi utama yang 
+akan diimplementasikan dalam program. Strategi ini dinilai memberikan kombinasi yang lebih seimbang 
+antara efisiensi penggunaan sumber daya, efektivitas penguasaan wilayah, serta stabilitas performa 
+sepanjang permainan.
+
+% =============================
+% BAB 4
+% =============================
+\newpage
+\section{Implementasi dan Pengujian}
+
+\subsection{Pseudocode}
+
+\subsection{Struktur Data dan Method}
+
+\subsubsection{\lstinline|G.java|}
+
+\begin{longtable}{|p{0.3\textwidth}|p{0.65\textwidth}|}
+\caption{Struktur Data di G.java} \\
+\hline
+\textbf{Nama} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{RobotController rc} & Referensi utama ke API Battlecode untuk semua aksi dan sensor robot. \\
+\hline
+\texttt{int mapWidth, mapHeight, mapArea} & Dimensi peta yang disimpan saat inisialisasi agar tidak perlu di-query ulang tiap ronde. \\
+\hline
+\texttt{MapLocation mapCenter} & Titik tengah peta, digunakan sebagai tujuan fallback saat robot tidak tahu harus ke mana. \\
+\hline
+\texttt{Team team, opponentTeam} & Referensi tim sendiri dan tim musuh agar perbandingan tim tidak perlu memanggil rc setiap saat. \\
+\hline
+\texttt{int roundSpawned} & Ronde saat robot ini pertama kali di-spawn, untuk menghitung usia robot. \\
+\hline
+\texttt{Direction[] DIRECTIONS[8]} & Array 8 arah mata angin (tanpa CENTER) untuk iterasi pergerakan dan scanning. \\
+\hline
+\texttt{Direction[] ALL\_DIRS[9]} & Array 9 arah termasuk CENTER, jarang dipakai dalam kode saat ini. \\
+\hline
+\texttt{MapLocation me} & Lokasi robot saat ini, di-update setiap ronde agar tidak memanggil \texttt{rc.getLocation()} berulang. \\
+\hline
+\texttt{int round} & Nomor ronde saat ini, di-update di awal setiap giliran. \\
+\hline
+\texttt{RobotInfo[] nearbyAllies} & Cache daftar robot sekutu dalam jangkauan sensor, di-refresh tiap ronde. \\
+\hline
+\texttt{RobotInfo[] nearbyEnemies} & Cache daftar robot musuh dalam jangkauan sensor, di-refresh tiap ronde. \\
+\hline
+\texttt{MapInfo[] nearbyMapInfos} & Cache informasi tile-tile di sekitar robot (paint, mark, wall), di-refresh tiap ronde. \\
+\hline
+\texttt{MapLocation[] nearbyRuins} & Cache daftar ruin yang terdeteksi di sekitar robot pada ronde ini. \\
+\hline
+\texttt{int[][] visited[30][30]} & Grid 30×30 yang mencatat ronde terakhir setiap sel 2×2 dikunjungi, untuk panduan eksplorasi. \\
+\hline
+\texttt{MapLocation lastKnownEnemyTower} & Lokasi terakhir tower musuh yang pernah terlihat, digunakan Soldier untuk mode ATTACK. \\
+\hline
+\texttt{int lastEnemyTowerRound} & Ronde saat \texttt{lastKnownEnemyTower} terakhir diperbarui, untuk menentukan apakah info masih relevan. \\
+\hline
+\texttt{int lastPaint} & Field yang dideklarasikan tapi tidak pernah digunakan di mana pun dalam kode. \\
+\hline
+\texttt{StringBuilder indicator} & Buffer teks indikator debug yang ditampilkan di atas robot setiap ronde. \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{0.38\textwidth}|p{0.57\textwidth}|}
+\caption{Function/Procedure di G.java} \\
+\hline
+\textbf{Function} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{void markVisited(MapLocation loc)} & Mencatat lokasi yang diberikan ke grid visited dengan nomor ronde saat ini. \\
+\hline
+\texttt{int getVisited(MapLocation loc)} & Mengembalikan ronde terakhir lokasi tersebut dikunjungi, atau 0 jika belum pernah. \\
+\hline
+\texttt{int cheby(MapLocation a, MapLocation b)} & Menghitung jarak Chebyshev (max dari selisih x dan y) antara dua lokasi. \\
+\hline
+\end{longtable}
+
+\subsubsection{\lstinline|RobotPlayer.java|}
+
+\begin{longtable}{|p{0.38\textwidth}|p{0.57\textwidth}|}
+\caption{Function/Procedure di RobotPlayer.java} \\
+\hline
+\textbf{Function} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{void run(RobotController rc)} & Melakukan inisialisasi satu kali lalu menjalankan loop utama yang memanggil logika robot sesuai tipenya setiap ronde. \\
+\hline
+\texttt{void updateRound()} & Memperbarui semua field global di G (ronde, lokasi, cache sensor, ruin) setiap awal giliran. \\
+\hline
+\end{longtable}
+
+\subsubsection{\lstinline|Soldier.java|}
+
+\begin{longtable}{|p{0.38\textwidth}|p{0.57\textwidth}|}
+\caption{Struktur Data di Soldier.java} \\
+\hline
+\textbf{Nama} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{int TOWER\_BUILD\_CUTOFF = 600} & Ronde batas setelah itu Soldier berhenti membangun tower dan beralih ke ekspansi murni. \\
+\hline
+\texttt{int EXPLORE=0 \ldots ATTACK=6} & Konstanta integer yang merepresentasikan tujuh mode state machine Soldier. \\
+\hline
+\texttt{int mode} & State machine aktif saat ini, menentukan perilaku Soldier pada ronde ini. \\
+\hline
+\texttt{MapLocation targetRuin} & Ruin yang sedang menjadi target pembangunan tower oleh Soldier ini. \\
+\hline
+\texttt{UnitType targetType} & Tipe tower yang direncanakan akan dibangun pada targetRuin saat ini. \\
+\hline
+\texttt{boolean markerPlaced} & Flag yang menandakan apakah pola tower sudah ditandai (mark) pada ruin target. \\
+\hline
+\texttt{int buildStartRound} & Ronde saat proses pembangunan tower dimulai, untuk mengukur timeout. \\
+\hline
+\texttt{int BUILD\_TIMEOUT = 110} & Batas maksimal ronde yang diperbolehkan untuk menyelesaikan satu proses pembangunan tower. \\
+\hline
+\texttt{UnitType[] TOWER\_TYPES[3]} & Array tiga tipe tower level-1 yang digunakan saat iterasi pengecekan dan penyelesaian pola. \\
+\hline
+\texttt{Direction[] SENTINEL[3]} & Arah tile sentinel per tipe tower untuk memverifikasi bahwa pola sudah di-mark sebelum diselesaikan. \\
+\hline
+\texttt{boolean[][][] towerPatterns} & Pola boolean 5×5 untuk ketiga tipe tower, di-fetch saat init untuk digunakan dalam painting. \\
+\hline
+\texttt{boolean[][] resourcePattern} & Pola boolean resource pattern yang di-fetch saat init (tersimpan tapi tidak digunakan langsung). \\
+\hline
+\texttt{MapLocation exploreTarget} & Lokasi tujuan eksplorasi saat ini yang diperbarui saat target sudah tercapai atau kadaluarsa. \\
+\hline
+\texttt{int exploreAge} & Penghitung ronde sejak exploreTarget terakhir diperbarui, untuk timeout eksplorasi. \\
+\hline
+\texttt{int EXPLORE\_TIMEOUT = 30} & Batas ronde sebelum exploreTarget dipilih ulang agar tidak stuck mengejar lokasi yang tidak bisa dicapai. \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{0.45\textwidth}|p{0.5\textwidth}|}
+\caption{Function/Procedure di Soldier.java} \\
+\hline
+\textbf{Function} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{void init()} & Mengambil pola tower dan resource dari rc, lalu menyetel seed PRNG robot ini. \\
+\hline
+\texttt{void run()} & Fungsi utama yang dijalankan tiap ronde: cek paint, jalankan transisi state, lalu eksekusi aksi mode aktif. \\
+\hline
+\texttt{void transitionExplore()} & Dari EXPLORE, mencari ruin terbaik untuk dibangun dan beralih ke GOTO\_RUIN, atau ke ATTACK jika musuh terdeteksi. \\
+\hline
+\texttt{void transitionGotoRuin()} & Memvalidasi target ruin masih valid dan belum dicuri, lalu beralih ke MARK saat ruin sudah bisa disensor. \\
+\hline
+\texttt{void transitionMark()} & Menunggu \texttt{markerPlaced} menjadi true sebelum beralih ke mode PAINT. \\
+\hline
+\texttt{void transitionPaint()} & Memeriksa apakah pola sudah bisa diselesaikan dan beralih ke COMPLETE jika sudah siap. \\
+\hline
+\texttt{void transitionComplete()} & Mencoba menyelesaikan tower; jika gagal kembali ke mode PAINT. \\
+\hline
+\texttt{void transitionAttack()} & Kembali ke EXPLORE jika informasi tower musuh sudah terlalu lama atau tidak ada. \\
+\hline
+\texttt{void doExplore()} & Bergerak ke target eksplorasi dan mengecat tile di sekitar sepanjang jalan. \\
+\hline
+\texttt{void doGotoRuin()} & Bergerak menuju targetRuin sambil mengecat tile di sekitar sepanjang jalan. \\
+\hline
+\texttt{void doMark()} & Mendekati ruin dan memanggil \texttt{markTowerPattern} untuk menandai pola tower di peta. \\
+\hline
+\texttt{void doPaint()} & Bergerak ke tile pola yang paling mendesak dan mengecat tile sesuai pola tower. \\
+\hline
+\texttt{void doComplete()} & Mendekati ruin dan memanggil \texttt{tryCompleteTower} untuk menyelesaikan pembangunan tower. \\
+\hline
+\texttt{void doRetreat()} & Bergerak ke tower sekutu terdekat dan mengisi ulang paint dari tower tersebut. \\
+\hline
+\texttt{void doAttack()} & Bergerak ke lokasi tower musuh terakhir diketahui dan menyerangnya jika dalam jangkauan. \\
+\hline
+\texttt{boolean paintBestPatternTile()} & Memilih dan mengecat tile pola tower berprioritas tertinggi dalam jangkauan aksi. \\
+\hline
+\texttt{MapLocation findUrgentPatternTile()} & Menemukan tile pola yang belum dicat dan paling dekat dengan robot untuk dijadikan navigasi. \\
+\hline
+\texttt{boolean hasMopperNearby()} & Mengembalikan true jika ada Mopper sekutu dalam radius 8 dari posisi robot ini. \\
+\hline
+\texttt{void opportunisticComplete()} & Menyelesaikan pola tower mana pun yang sudah siap di sekitar robot tanpa harus dalam mode COMPLETE. \\
+\hline
+\texttt{boolean tryCompleteTower()} & Mencoba menyelesaikan tower pada targetRuin dengan memverifikasi sentinel tile terlebih dahulu. \\
+\hline
+\texttt{MapLocation findBestRuinToBuild()} & Memilih ruin terbaik untuk dibangun berdasarkan jarak, jumlah cat musuh, dan status klaim. \\
+\hline
+\texttt{int countEnemyPaint(MapLocation loc, int radiusSq)} & Menghitung jumlah tile bercat musuh dalam radius tertentu dari lokasi yang diberikan. \\
+\hline
+\texttt{MapLocation pickGreedyExploreTarget()} & Memilih target eksplorasi terbaik secara greedy dengan memprioritaskan ruin netral dan sel yang belum dikunjungi. \\
+\hline
+\texttt{void paintNearby()} & Mengecat tile terbaik dalam jangkauan aksi dengan memprioritaskan tile sendiri, tile kosong, lalu tile musuh. \\
+\hline
+\texttt{void tryCompleteResourcePatterns()} & Mencoba menyelesaikan resource pattern di semua tile dalam radius 2 dari posisi robot. \\
+\hline
+\texttt{void tryWithdrawPaint()} & Menarik paint dari tower paint terdekat jika robot berada dalam jangkauan dan paint belum penuh. \\
+\hline
+\texttt{MapLocation findNearestAllyTowerLoc()} & Menemukan tower sekutu terdekat dengan bonus preferensi pada paint tower untuk retreat. \\
+\hline
+\texttt{void checkRuinStolen()} & Memeriksa apakah ruin target sudah diambil musuh atau sekutu lain dan memperbarui state sesuai hasilnya. \\
+\hline
+\texttt{void abandonBuild()} & Mereset semua variabel build dan kembali ke mode EXPLORE. \\
+\hline
+\texttt{String modeStr()} & Mengembalikan string singkat mode aktif untuk ditampilkan di indikator debug. \\
+\hline
+\end{longtable}
+
+
+\subsubsection{\lstinline|Splasher.java|}
+\begin{longtable}{|p{0.38\textwidth}|p{0.57\textwidth}|}
+    \caption{Struktur Data di .java} \\
+\hline
+\textbf{Nama} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{int EXPLORE=0, RETREAT=1} & Dua konstanta mode state machine Splasher: eksplorasi aktif atau mundur ke tower. \\
+\hline
+\texttt{int mode} & Mode aktif Splasher saat ini. \\
+\hline
+\texttt{MapLocation exploreTarget} & Lokasi tujuan eksplorasi yang diperbarui secara berkala. \\
+\hline
+\texttt{int exploreAge} & Penghitung ronde sejak exploreTarget terakhir diganti. \\
+\hline
+\texttt{int EXPLORE\_TIMEOUT = 25} & Batas ronde sebelum exploreTarget Splasher dipilih ulang. \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{0.45\textwidth}|p{0.5\textwidth}|}
+    \caption{Function/Procedure di Splasher.java} \\
+\hline
+\textbf{Function} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{void init()} & Menyetel seed PRNG unik untuk robot Splasher ini. \\
+\hline
+\texttt{void run()} & Fungsi utama tiap ronde: cek paint, mode, complete pattern, lalu eksekusi aksi. \\
+\hline
+\texttt{void doExplore()} & Bergerak ke target terbaik dan melakukan splash attack pada lokasi paling menguntungkan. \\
+\hline
+\texttt{void bestSplash()} & Memilih pusat splash yang memberikan skor tertinggi berdasarkan jumlah tile kosong dan cat musuh dalam radius ledakan. \\
+\hline
+\texttt{MapLocation pickMoveTarget()} & Menilai 8 arah gerak dan memilih yang paling menguntungkan menuju area belum dikunjungi. \\
+\hline
+\texttt{MapLocation pickGreedyTarget()} & Memilih target eksplorasi acak terbaik dari 8 kandidat berdasarkan skor kunjungan dan jarak. \\
+\hline
+\texttt{void doRetreat()} & Bergerak ke paint tower terdekat dan menarik paint saat sudah berada dalam jangkauan. \\
+\hline
+\texttt{void tryWithdrawPaint()} & Menarik paint dari paint tower sekutu terdekat jika berada dalam jangkauan dan kapasitas belum penuh. \\
+\hline
+\texttt{void tryCompletePatterns()} & Menyelesaikan pola tower dan resource pattern yang sudah siap di sekitar robot secara oportunistik. \\
+\hline
+\texttt{MapLocation findNearestPaintTowerLoc()} & Mencari paint tower sekutu yang paling dekat dari posisi robot saat ini. \\
+\hline
+\end{longtable}
+
+\subsubsection{\lstinline|Mopper.java|}
+
+\begin{longtable}{|p{0.38\textwidth}|p{0.57\textwidth}|}
+    \caption{Struktur Data di Mopper.java} \\
+\hline
+\textbf{Nama} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{int EXPLORE=0, SUPPORT=1, RETREAT=2} & Tiga konstanta mode state machine Mopper. \\
+\hline
+\texttt{int mode} & Mode aktif Mopper saat ini. \\
+\hline
+\texttt{MapLocation exploreTarget} & Lokasi tujuan eksplorasi Mopper yang diperbarui secara berkala. \\
+\hline
+\texttt{int exploreAge} & Penghitung ronde sejak exploreTarget Mopper terakhir diganti. \\
+\hline
+\texttt{int EXPLORE\_TIMEOUT = 20} & Batas ronde sebelum exploreTarget Mopper dipilih ulang. \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{0.45\textwidth}|p{0.5\textwidth}|}
+    \caption{Function/Procedure di Mopper.java} \\
+\hline
+\textbf{Function} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{void init()} & Menyetel seed PRNG unik untuk robot Mopper ini. \\
+\hline
+\texttt{void run()} & Fungsi utama tiap ronde: cek paint untuk retreat, complete pattern, lalu eksekusi mode aktif. \\
+\hline
+\texttt{void doExplore()} & Mengecek ally yang butuh paint, bergerak ke area cat musuh terpadat, dan melakukan aksi mop. \\
+\hline
+\texttt{Direction pickMopDirection()} & Memilih arah gerak terbaik dengan menghitung skor berdasarkan kepadatan cat musuh dan robot musuh di sekitarnya. \\
+\hline
+\texttt{void doMopAction()} & Memilih aksi terbaik: swing jika banyak musuh dalam satu garis, atau mop tile/robot musuh terbaik. \\
+\hline
+\texttt{Direction findBestSwing()} & Menemukan arah kardinal terbaik untuk swing attack yang mengenai paling banyak robot musuh. \\
+\hline
+\texttt{RobotInfo findNeedyAlly()} & Mencari robot sekutu dalam radius 2 yang paint-nya di bawah 30\% kapasitas untuk diberi support. \\
+\hline
+\texttt{void doSupport()} & Mendekati ally yang butuh paint dan mentransfer paint kepadanya. \\
+\hline
+\texttt{void doRetreat()} & Menarik paint dari paint tower terdekat atau bergerak menuju paint tower untuk isi ulang. \\
+\hline
+\texttt{void tryCompletePatterns()} & Menyelesaikan pola tower yang sudah siap di sekitar robot secara oportunistik. \\
+\hline
+\texttt{MapLocation findNearestPaintTowerLoc()} & Mencari paint tower sekutu yang paling dekat dari posisi Mopper saat ini. \\
+\hline
+\texttt{String modeStr()} & Mengembalikan string singkat mode aktif Mopper untuk indikator debug. \\
+\hline
+\end{longtable}
+
+\subsubsection{\lstinline|Tower.java|}
+
+\begin{longtable}{|p{0.38\textwidth}|p{0.57\textwidth}|}
+    \caption{Struktur Data di Tower.java} \\
+\hline
+\textbf{Nama} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{int PHASE2\_ROUND = 601} & Ronde di mana strategi spawn beralih ke mode agresif fase 2 (dominasi Splasher). \\
+\hline
+\texttt{double W\_SOLDIER\_BASE = 1.6} & Bobot dasar Soldier dalam kalkulasi proporsi spawn fase 1. \\
+\hline
+\texttt{double W\_SPLASHER\_BASE = 0.5} & Bobot dasar Splasher dalam kalkulasi proporsi spawn fase 1. \\
+\hline
+\texttt{double W\_MOPPER\_BASE = 0.9} & Bobot dasar Mopper dalam kalkulasi proporsi spawn fase 1. \\
+\hline
+\texttt{double dSoldier, dSplasher, dMopper} & Akumulator desimal untuk menyeimbangkan jumlah spawn aktual vs target proporsi setiap tipe unit. \\
+\hline
+\texttt{int spawnedTotal, spawnedSoldiers, ...} & Counter jumlah unit yang sudah di-spawn oleh tower ini per tipe dan total. \\
+\hline
+\texttt{int lastSpawnRound} & Ronde terakhir tower berhasil men-spawn unit, untuk logika throttling spawn. \\
+\hline
+\texttt{MapLocation[] spawnLocs} & Array lokasi spawn yang sudah diurutkan dari yang terjauh dari pusat peta ke terdekat. \\
+\hline
+\texttt{int towerLevel} & Level upgrade tower saat ini, bertambah tiap kali \texttt{upgradeTower} berhasil dipanggil. \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{0.52\textwidth}|p{0.43\textwidth}|}
+    \caption{Function/Procedure di Tower.java} \\
+\hline
+\textbf{Function} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{void init()} & Membangun daftar lokasi spawn dan mendaftarkan tower ini ke MapMemory. \\
+\hline
+\texttt{void run()} & Fungsi utama tiap ronde: putuskan unit yang di-spawn, lakukan spawn, serang musuh, dan coba upgrade. \\
+\hline
+\texttt{UnitType decideSpawnPhase1()} & Memilih tipe unit terbaik untuk di-spawn di fase 1 berdasarkan bobot dinamis dan jumlah tower yang ada. \\
+\hline
+\texttt{UnitType decideSpawnPhase2()} & Memilih tipe unit untuk fase 2 dengan pola sederhana: setiap unit ke-7 adalah Mopper, sisanya Splasher. \\
+\hline
+\texttt{boolean shouldSpawn(UnitType t, boolean isPhase2)} & Menentukan apakah tower boleh spawn sekarang berdasarkan jumlah chip, jumlah tower, dan fase permainan. \\
+\hline
+\texttt{boolean trySpawn(UnitType type)} & Mencoba membangun robot di salah satu lokasi spawn yang tersedia dan memperbarui counter. \\
+\hline
+\texttt{void doAttack()} & Melakukan serangan AoE otomatis lalu menyerang musuh berprioritas tertinggi dalam jangkauan. \\
+\hline
+\texttt{void tryUpgrade()} & Mengupgrade tower jika chip mencukupi threshold dengan buffer sesuai fase permainan. \\
+\hline
+\texttt{MapLocation[] buildSpawnLocs()} & Membuat dan mengurutkan array 12 lokasi potensial spawn di sekitar tower berdasarkan jarak dari pusat peta. \\
+\hline
+\end{longtable}
+
+\subsubsection{\lstinline|Nav.java|}
+
+\begin{longtable}{|p{0.3\textwidth}|p{0.65\textwidth}|}
+    \caption{Struktur Data di Nav.java} \\
+\hline
+\textbf{Nama} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{Direction bugDir} & Arah dinding yang sedang diikuti dalam algoritma bug navigation, null jika sedang jalan lurus. \\
+\hline
+\texttt{int bugRot} & Arah rotasi bug nav: +1 searah jarum jam, -1 berlawanan jarum jam. \\
+\hline
+\texttt{int bugSteps} & Jumlah langkah yang sudah dilakukan dalam mode bug nav untuk deteksi timeout. \\
+\hline
+\texttt{MapLocation bugTarget} & Target terakhir yang digunakan bug nav untuk mendeteksi perubahan tujuan. \\
+\hline
+\texttt{int bugStartDist} & Jarak kuadrat ke target saat bug nav dimulai, untuk mendeteksi kemajuan. \\
+\hline
+\texttt{int BUG\_RESET = 20} & Batas langkah maksimal sebelum bug nav di-reset agar tidak berputar terus. \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{0.45\textwidth}|p{0.5\textwidth}|}
+    \caption{Function/Procedure di Nav.java} \\
+\hline
+\textbf{Function} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{void moveToward(MapLocation target)} & Menggerakkan robot menuju target dengan bug navigation untuk menghindari rintangan. \\
+\hline
+\texttt{void moveAway(MapLocation avoid)} & Menggerakkan robot menjauhi lokasi yang diberikan dengan mencoba arah berlawanan dan variannya. \\
+\hline
+\texttt{void spreadFromAllies()} & Menggerakkan robot menjauh dari kerumunan ally dengan menghitung vektor repulsi. \\
+\hline
+\texttt{boolean tryMove(Direction d)} & Mencoba bergerak ke arah tertentu, memperbarui \texttt{G.me} dan visited jika berhasil, mengembalikan true/false. \\
+\hline
+\texttt{void greedyExploreTo(MapLocation target)} & Bergerak menuju target dengan memilih arah yang memaksimalkan kemajuan sekaligus mengutamakan sel belum dikunjungi. \\
+\hline
+\texttt{boolean paintUnderSelf()} & Mengecat tile di bawah robot sendiri jika tile tersebut kosong atau bercat musuh. \\
+\hline
+\texttt{MapLocation pickExploreTarget()} & Memilih target eksplorasi terbaik dari 8 kandidat acak berdasarkan skor kunjungan dan jarak. \\
+\hline
+\end{longtable}
+
+\subsubsection{\lstinline|MapMemory.java|}
+
+\begin{longtable}{|p{0.35\textwidth}|p{0.60\textwidth}|}
+    \caption{Struktur Data di MapMemory.java} \\
+\hline
+\textbf{Nama} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{int MAX\_RUINS = 100} & Batas maksimal ruin/tower yang bisa disimpan dalam memori. \\
+\hline
+\texttt{int numRuins} & Jumlah ruin/tower yang saat ini tersimpan dalam array. \\
+\hline
+\texttt{MapLocation[] ruinLocs[100]} & Array lokasi semua ruin dan tower yang pernah ditemukan. \\
+\hline
+\texttt{Team[] ruinTeams[100]} & Array tim pemilik setiap ruin/tower yang diketahui. \\
+\hline
+\texttt{UnitType[] ruinTypes[100]} & Array tipe tower untuk setiap ruin/tower yang sudah dibangun. \\
+\hline
+\texttt{int[] ruinStatus[100]} & Status setiap ruin: 0=netral, 1=milik sekutu, 2=milik musuh. \\
+\hline
+\texttt{int[] ruinClaimRound[100]} & Ronde saat robot mengklaim ruin untuk dibangun, untuk mencegah klaim ganda dalam 80 ronde. \\
+\hline
+\texttt{int allyPaintTowers} & Jumlah paint tower sekutu yang diketahui saat ini. \\
+\hline
+\texttt{int allyMoneyTowers} & Jumlah money tower sekutu yang diketahui saat ini. \\
+\hline
+\texttt{int allyDefenseTowers} & Jumlah defense tower sekutu yang diketahui saat ini. \\
+\hline
+\texttt{int totalAllyTowers} & Total semua tower sekutu yang diketahui saat ini. \\
+\hline
+\texttt{boolean[] symmetry[3]} & Tiga flag simetri peta yang masih mungkin berlaku: horizontal, vertikal, dan rotasional. \\
+\hline
+\texttt{int[][] towerGrid[12][12]} & Grid indeks 12 $\times$ 12 untuk lookup cepat apakah sudah ada ruin pada sel 5 $\times$ 5 tertentu. \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{0.52\textwidth}|p{0.43\textwidth}|}
+    \caption{Function/Procedure di MapMemory.java} \\
+\hline
+\textbf{Function} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{void registerRuin(MapLocation loc, Team t, UnitType u)} & Menambahkan atau memperbarui data ruin/tower pada lokasi yang diberikan dan menyetel ulang hitungan tower. \\
+\hline
+\texttt{boolean tryClaimRuin(MapLocation loc)} & Mencoba mengklaim ruin netral untuk dibangun; gagal jika sudah diklaim dalam 80 ronde terakhir. \\
+\hline
+\texttt{int teamToStatus(Team t)} & Mengonversi objek Team menjadi integer status (0=netral, 1=sekutu, 2=musuh). \\
+\hline
+\texttt{void recomputeAllyCount()} & Menghitung ulang semua counter tower sekutu per tipe dari awal berdasarkan data \texttt{ruinTeams} dan \texttt{ruinTypes}. \\
+\hline
+\texttt{UnitType chooseTowerType()} & Memilih tipe tower terbaik untuk dibangun berikutnya berdasarkan rasio paint/money/defense yang ada. \\
+\hline
+\texttt{void updateSymmetry(MapLocation loc, boolean isWall)} & Placeholder untuk memperbarui estimasi simetri peta berdasarkan tile yang dilihat, saat ini belum diimplementasi. \\
+\hline
+\texttt{MapLocation getEnemyMirror(MapLocation allyLoc)} & Memprediksi posisi tower musuh dengan mencerminkan posisi tower sekutu berdasarkan simetri yang paling mungkin. \\
+\hline
+\texttt{void scanNearby()} & Memindai semua ruin dan robot musuh di sekitar robot lalu mendaftarkannya ke memori peta. \\
+\hline
+\texttt{MapLocation closestNeutralRuin(MapLocation from)} & Mencari ruin netral terdekat dari titik yang diberikan berdasarkan jarak kuadrat. \\
+\hline
+\texttt{MapLocation closestEnemyTower(MapLocation from)} & Mencari tower musuh terdekat yang diketahui dari titik yang diberikan berdasarkan jarak kuadrat. \\
+\hline
+\end{longtable}
+
+\subsubsection{\lstinline|Rand.java|}
+
+\begin{longtable}{|p{0.3\textwidth}|p{0.65\textwidth}|}
+    \caption{Struktur Data di Rand.java} \\
+\hline
+\textbf{Nama} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{int state = 12345} & Seed dan state internal PRNG xorshift32 yang diubah setiap pemanggilan \texttt{next()}. \\
+\hline
+\end{longtable}
+
+\begin{longtable}{|p{0.38\textwidth}|p{0.57\textwidth}|}
+    \caption{Function/Procedure di Rand.java} \\
+\hline
+\textbf{Function} & \textbf{Penjelasan} \\
+\hline
+\endhead
+\hline
+\endfoot
+\texttt{int next()} & Menghasilkan bilangan pseudorandom positif berikutnya menggunakan algoritma xorshift32. \\
+\hline
+\texttt{int nextInt(int bound)} & Mengembalikan bilangan pseudorandom dalam rentang [0, bound) dengan memanggil \texttt{next()} lalu modulo. \\
+\hline
+\end{longtable}
+
+\subsection{Pengujian}
+
+\subsection{Analisis Hasil}
+
+
+% =============================
+% BAB 5
+% =============================
+\newpage
+\section{Kesimpulan dan Saran}
+
+% =============================
+% LAMPIRAN
+% =============================
+\newpage
+\section*{Lampiran}
+
+Repository GitHub: \\
+\url{https://github.com/...}
+
+Video: \\
+\url{https://...}
+
+% =============================
+% DAFTAR PUSTAKA
+% =============================
+\newpage
+\begin{thebibliography}{9}
+
+\bibitem{greedy}
+Thomas H. Cormen,
+\textit{Introduction to Algorithms},
+MIT Press.
+
+\end{thebibliography}
+
+\end{document}
